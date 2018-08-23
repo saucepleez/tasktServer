@@ -11,5 +11,13 @@ This project is the web companion and back-end orchestration/administration tool
 ## Technology
 The web application runs on ASP.NET Core MVC v2.0, uses MS SQL Server to store logs and client data, and communicates with the robot workers through web sockets.
 
+## Quick Start
+Initial documentation on how to connect clients to the server [here](https://github.com/saucepleez/tasktServer/wiki/Connecting-Clients).
+
 ## License
 This project is licensed under the Apache License - see the LICENSE.md file for details. This project is free for personal or commercial use.
+
+## Functional Roadmap
+- [X] Enable taskt Clients to Connect to Server 
+- [ ] Create and Build Assignments (jobs that are assigned to workers)
+- [ ] Populate Agenda with upcoming/in progress/completed assignments
