@@ -1,0 +1,36 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Script xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Commands>
+    <ScriptAction>
+      <ScriptCommand xsi:type="BeginNumberOfTimesLoopCommand" CommandName="BeginNumberOfTimesLoopCommand" IsCommented="false" SelectionName="Loop Number Of Times" DefaultPause="250" LineNumber="1" PauseBeforeExeucution="false" CommandEnabled="true" v_LoopParameter="1500" />
+      <AdditionalScriptCommands>
+        <ScriptCommand xsi:type="PauseCommand" CommandName="PauseCommand" IsCommented="false" SelectionName="Pause Script" DefaultPause="250" LineNumber="2" PauseBeforeExeucution="false" CommandEnabled="true" v_PauseLength="5000" />
+      </AdditionalScriptCommands>
+      <AdditionalScriptCommands>
+        <ScriptCommand xsi:type="PauseCommand" CommandName="PauseCommand" IsCommented="false" SelectionName="Pause Script" DefaultPause="250" LineNumber="3" PauseBeforeExeucution="false" CommandEnabled="true" v_PauseLength="5000" />
+      </AdditionalScriptCommands>
+      <AdditionalScriptCommands>
+        <ScriptCommand xsi:type="PauseCommand" CommandName="PauseCommand" IsCommented="false" SelectionName="Pause Script" DefaultPause="250" LineNumber="4" PauseBeforeExeucution="false" CommandEnabled="true" v_PauseLength="5000" />
+      </AdditionalScriptCommands>
+      <AdditionalScriptCommands>
+        <ScriptCommand xsi:type="PauseCommand" CommandName="PauseCommand" IsCommented="false" SelectionName="Pause Script" DefaultPause="250" LineNumber="5" PauseBeforeExeucution="false" CommandEnabled="true" v_PauseLength="5000" />
+      </AdditionalScriptCommands>
+      <AdditionalScriptCommands>
+        <ScriptCommand xsi:type="PauseCommand" CommandName="PauseCommand" IsCommented="false" SelectionName="Pause Script" DefaultPause="250" LineNumber="6" PauseBeforeExeucution="false" CommandEnabled="true" v_PauseLength="5000" />
+      </AdditionalScriptCommands>
+      <AdditionalScriptCommands>
+        <ScriptCommand xsi:type="PauseCommand" CommandName="PauseCommand" IsCommented="false" SelectionName="Pause Script" DefaultPause="250" LineNumber="7" PauseBeforeExeucution="false" CommandEnabled="true" v_PauseLength="5000" />
+      </AdditionalScriptCommands>
+      <AdditionalScriptCommands>
+        <ScriptCommand xsi:type="PauseCommand" CommandName="PauseCommand" IsCommented="false" SelectionName="Pause Script" DefaultPause="250" LineNumber="8" PauseBeforeExeucution="false" CommandEnabled="true" v_PauseLength="5000" />
+      </AdditionalScriptCommands>
+      <AdditionalScriptCommands>
+        <ScriptCommand xsi:type="CommentCommand" CommandName="CommentCommand" IsCommented="false" SelectionName="Add Code Comment" DefaultPause="250" LineNumber="9" PauseBeforeExeucution="false" v_Comment="Items in this section will run within the loop" CommandEnabled="true" />
+      </AdditionalScriptCommands>
+      <AdditionalScriptCommands>
+        <ScriptCommand xsi:type="EndLoopCommand" CommandName="EndLoopCommand" IsCommented="false" SelectionName="End Loop" DefaultPause="0" LineNumber="10" PauseBeforeExeucution="false" CommandEnabled="true" />
+      </AdditionalScriptCommands>
+    </ScriptAction>
+  </Commands>
+  <Variables />
+</Script>

@@ -1,0 +1,295 @@
+﻿@Model List<tasktServer.Models.ClientModel>
+@{
+    ViewData["Title"] = "Clients";
+}
+<html>
+<head>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous" />
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap-treeview.css" />
+    <link rel="stylesheet" href="~/css/site.css" />
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap-treeview.js"></script>
+</head>
+<body>
+    <div class="jumbotron text-white bg-dark" style=" background-image: url('../images/servers.jpeg');background-size: cover;">
+        <h1 class="display-3">Bots.</h1>
+        <p class="lead">Oversee the bot workforce and execute scripts remotely.</p>
+        <hr class="my-4">
+    </div>
+    <br />
+
+    <div class="alert alert-info">
+        <strong>Note:</strong> You must manually authorize each bot by generating a connection key!  To do this, click 'Add Bot' and fill out the required information.  After submitting the information, you will be provided with a connection key. To add the connection key, connect to the bot and under the <strong>Settings</strong> menu, input the key into the 'Client Key' box.
+    </div>
+
+    <script type="text/javascript">
+        function addBotClient() {
+            $('#newBotClientForm').show();
+
+            var url = "@Url.Action("AddClient", "Home")";
+
+            var model = {
+                DisplayName: $('#botDisplayName').val(),
+                RestrictIP: $('#botIPLabel').is(':checked'),
+                IPAddress: $('#botIPAddress').val(),
+                RestrictUserName: $('#botUserLabel').is(':checked'),
+                UserName: $('#botUserName').val(),
+                EntryType: "Manual"
+            };
+
+            $.post(url, model, function (res) {
+                $("#myModal").html(res);
+
+                var response = res;
+
+
+
+            });
+
+
+
+        }
+    </script>
+
+    <div class="panel panel-primary">
+        <div class="panel-heading">Available Bot Workers</div>
+
+        <div class="panel-body">
+            <button type="button" class="btn btn-info btn-lg" data-toggle="modal" data-target="#myModal">Add Bot</button>
+
+
+            <div id="myModal" class="modal fade" role="dialog">
+                <div class="modal-dialog">
+
+                    <!-- Modal content-->
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            <h4 class="modal-title">Modal Header</h4>
+                        </div>
+                        <div class="modal-body">
+
+                            <div class="form-group">
+                                <label for="botDisplayName">Bot Display Name (Display Purposes Only)</label>
+                                <input type="text" class="form-control" id="botDisplayName" aria-describedby="botdisplayname" placeholder="Enter Display Name">
+                            </div>
+
+                            <div class="form-group">
+                                <div class="checkbox">
+                                    <label><input type="checkbox" value="" id="botIPLabel" onchange="toggleElement(this.id, 'botIPAddress')">Restrict IP</label>
+                                </div>
+
+                                <input type="text" class="form-control" id="botIPAddress" aria-describedby="botipaddress" placeholder="Enter IP Address"style="display:none">
+                            </div>
+
+                            <div class="form-group">
+                                <div class="checkbox">
+                                    <label><input type="checkbox" value="" id="botUserLabel" onchange="toggleElement(this.id, 'botUserName')">Restrict UserName</label>
+                                </div>
+
+                                <input type="text" class="form-control" id="botUserName" aria-describedby="botusername" placeholder="Enter Username" style="display:none;">
+                            </div>
+
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal" onclick="addBotClient()">Save</button>
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <script type="text/javascript">
+                function toggleElement(sourceElementID, targetElementID) {
+
+                    if ($('#' + sourceElementID).is(':checked'))
+                    {
+                        $('#' + targetElementID).show();
+                    }
+                    else {
+                        $('#' + targetElementID).hide();
+
+                    }
+
+                }
+
+                function copyToClipboard(item) {
+
+                        document.querySelector('#' + item).select();
+                        document.execCommand('copy');
+                        alert('copied');
+
+
+                }
+
+            </script>
+
+
+            <table class="table" id="connected-bots">
+                <thead>
+                    <tr>
+                        <th style='width: 15%'>Display Name</th>
+                        <th  style='width: 10%'>Restrict IP</th>
+                        <th style='width: 15%'>IP Address</th>
+                        <th  style='width: 10%'>Restrict User</th>
+                        <th style='width: 25%'>User</th>
+                        <th style='width: 20%'>Connection Key</th>
+                        <th style='width: 5%'></th>
+                    </tr>
+                </thead>
+                <tbody id="clients-tbody">
+                    @if (Model != null)
+                    {
+                        int idNumber = 0;
+                        @foreach (tasktServer.Models.ClientModel item in Model)
+                        {
+                            <tr>
+                                <td>@item.DisplayName</td>
+                                <td>@item.RestrictIP</td>
+                                <td>@item.IPAddress</td>
+                                <td>@item.RestrictUserName</td>
+                                <td>@item.UserName</td>
+                                <td><input type="text" value="@item.PublicKeyLicense" id="key_@(idNumber)" /></td>
+                                <td><button class="btn btn-primary" onclick="copyToClipboard('key_@(idNumber)')">Copy</button></td>
+                            </tr>
+
+                            idNumber++;
+                        }
+                    }
+                    else {
+                        <tr>
+                            <td>No bots exist yet.</td>
+                        </tr>
+
+                    }
+
+
+
+                    @* rows insert here from ajax*@
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+
+    <div class="panel panel-primary">
+        <div class="panel-heading">Run Script</div>
+        <div class="panel-body">
+
+            <div class="form-group">
+                <label for="exampleSelect1">Select a Script to Run</label>
+                <select class="form-control" id="script-selector"></select>
+            </div>
+
+            <div class="form-group">
+                <label for="exampleSelect1">Select a Target Machine to Run Script</label>
+                <select class="form-control" id="target-machine"></select>
+            </div>
+
+            <button type="submit" class="btn btn-primary" onclick="executeScript()">Run</button>
+
+        </div>
+    </div>
+
+
+    @*<script type="text/javascript">
+
+
+        window.setInterval(function () {
+
+
+            var url = "/Home/GetConnectedClients";
+
+            $.get(url, null, function (data) {
+
+                var clientRows = "";
+                $.each(data, function (index, value) {
+                    clientRows += "<tr>";
+                    clientRows += "<td>";
+                    clientRows += value.connectionID;
+                    clientRows += "</td>";
+                    clientRows += "<td>";
+                    clientRows += value.ipAddress;
+                    clientRows += "</td>"
+                    clientRows += "<td><a href=# onclick=ViewClient(" + value.connectionID + ")>View</a></td>";
+                    clientRows += "<td>";
+                    clientRows += value.status;
+                    clientRows += "</td>"
+                    clientRows += "</tr>";
+
+
+                    $('#target-machine').empty();
+                    $('#target-machine')
+                        .append($("<option></option>")
+                            .attr("value", index)
+                            .text(value.connectionID));
+
+
+                })
+
+
+                if (clientRows == "") {
+                    $("#connected-bots tbody").empty().append('<th scope="row">No Bots Connected</th>');
+                }
+                else {
+
+                    $("#connected-bots tbody").empty().append(clientRows);
+
+                }
+
+            });
+        }, 200);
+    </script>*@
+
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+            var url = "/Home/GetScripts";
+
+            $.get(url, null, function (data) {
+                $.each(data, function (index, value) {
+
+                    $('#script-selector')
+                        .append($("<option></option>")
+                            .attr("value", index)
+                            .text(value));
+                })
+            });
+
+        });
+
+
+        function executeScript() {
+
+            var executionScript = $('#script-selector').find(":selected").text();
+            var targetConnection = $('#target-machine').find(":selected").text();
+
+            $.ajax({
+                url: '/SendMessageToClientAsync',
+                type: 'POST',
+                data: {
+                    connectionID: targetConnection,
+                    scriptName: executionScript
+                },
+                success: function (data, textStatus, jQxhr) {
+                   // alert(data);
+                },
+                error: function (jqXhr, textStatus, errorThrown) {
+                    alert('error');
+                }
+            });
+
+
+
+
+
+        }
+
+    </script>
+
+</body>
+</html>

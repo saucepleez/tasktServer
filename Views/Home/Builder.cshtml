@@ -1,0 +1,156 @@
+﻿@{
+    ViewData["Title"] = "Builder";
+}
+<html>
+<head>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous" />
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
+    <link rel="stylesheet" href="~/css/site.css" />
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap-treeview.css" />
+
+    <script language="JavaScript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.0/jquery.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap-treeview.js"></script>
+    <script src="~/lib/jquery/dist/jquery-3.3.1.js"></script>
+</head>
+<body>
+    <div class="jumbotron text-white bg-dark" style=" background-image: url('../images/buildings.jpeg'); background-size: 2000px 1000px; background-position: center; ">
+        <h1 class="display-3">Build.</h1>
+        <p class="lead">Create and Execute Scripts remotely on the server.</p>
+    </div>
+    <br />
+
+
+    <script type="text/javascript">
+        function generateCommand() {
+
+            var commandName = $("#selectedCommand").attr('commandName');
+            var displayValueName = $("#selectedCommand").attr('displayValueName');
+
+            var attribs = " ";
+            $('#selectedCommand').children('.user-parameter').each(function () {
+                var attributeName = $(this).attr('name');
+                var attributeValue = $(this).val();
+
+                attribs += attributeName + '=' + attributeValue
+
+            });
+            $("#commandList").append('<div' + attribs + '>' + displayValueName + '</div>');
+        }
+        function callLocalSocketListener() {
+
+            var commandList = $('#commandList').html();
+
+            var socket = new WebSocket('ws://localhost:80/ws');
+            socket.onopen = function () {
+
+                socket.send(commandList);
+            };
+            socket.onmessage = function (s) {
+                alert('got reply ' + s.data);
+            };
+
+        }
+    </script>
+
+    @* Show Requested Command *@
+    <div class="container">
+        <div commandName="MessageBoxCommand" displayValueName="Show Message" id="selectedCommand">
+            <input class="user-parameter" id="v_Message" name="v_Message" />
+        </div>
+        <button onclick="generateCommand()">Add</button>
+    </div>
+
+
+    <div id="commandList">
+
+    </div>
+
+
+
+    <button onclick="callLocalSocketListener()">Run</button>
+
+    <hr />
+
+
+
+    <!-- Treeview -->
+    <script src="~/lib/bootstrap/dist/js/bootstrap-treeview.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap-treeview.js"></script>
+    <script type="text/javascript">
+        $(function () {
+            var mytree = [
+                {
+                    text: "Parent 1",
+                    nodes: [
+                        {
+                            text: "Child 1",
+                            nodes: [
+                                {
+                                    text: "Grandchild 1"
+                                },
+                                {
+                                    text: "Grandchild 2"
+                                }
+                            ]
+                        },
+                        {
+                            text: "Child 2"
+                        }
+                    ]
+                },
+                {
+                    text: "Parent 2"
+                }
+            ];
+
+            $('#tree').treeview({ data: mytree });
+        });
+    </script>
+
+    <div id="tree"></div>
+
+    @*<div class="container">
+        dfgd
+           </div>
+            <div class="container">
+                <div id="automationCommands">
+
+                </div>
+            </div>
+
+
+            <button type="button" class="btn btn-info btn-lg" data-toggle="modal" data-target="#myModal">Open Modal</button>
+
+            <!-- Modal -->
+            <div id="myModal" class="modal fade" role="dialog">
+                <div class="modal-dialog">
+
+                    <!-- Modal content-->
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            <h4 class="modal-title">Modal Header</h4>
+                        </div>
+                        <div class="modal-body">
+                              <label for="v_PauseLength">Pause Delay</label><input type="text" id="v_PauseLength" />
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal" onclick="insertNewCommand()">Save</button>
+                            <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <script type="text/javascript">
+                function insertNewCommand() {
+                    alert 'hello world!
+                }
+            </script>*@
+
+</body>
+</html>

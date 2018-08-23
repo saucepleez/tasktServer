@@ -1,0 +1,101 @@
+﻿@model List<tasktServer.Models.SQL.Workers>
+<html>
+<head>
+
+</head>
+<body>
+    <div class="panel panel-default" id="workforcePanel">
+        <div class="panel-body">
+            <div class="container">
+
+                <h2>workforce</h2>
+                <h4>view your taskt workforce at a glance and approve, disable, or enable robot workers as a part of your workforce.</h4>
+                <hr />
+                @if (Model.Count == 0)
+                {
+
+                    <h5>its awfully quiet in here! There are currently no bots connected.</h5>
+                    <div class="alert alert-info">
+                        <strong>Quick Tip:</strong> Connect your bots by setting 'wss://[ServerIP]:[Port]/ws' and selecting 'Connect' in the taskt desktop client.  Once you connect your bots, they will show here and must be approved before they can be used for task orchestration.
+                    </div>
+                }
+                else
+                {
+
+                    <table class="table table-condensed">
+                        <thead>
+
+                            <tr>
+                                <th></th>
+                                <th data-toggle="tooltip" title="This is the name of the desktop machine running taskt">Machine Name</th>
+                                <th data-toggle="tooltip" title="This is the name of the current desktop user">User Name</th>
+                                <th data-toggle="tooltip" title="All machines must be approved in order to be added to the workforce">Worker Status</th>
+                                <th data-toggle="tooltip" title="This is the last time a known ping was received from the machine">Last Contact</th>
+                                <th data-toggle="tooltip" title="This is the last known status of the machine">Last Known Status</th>
+                                <th data-toggle="tooltip" title="Ping the machine to see if it is alive">Ping</th>
+                                <th data-toggle="tooltip" title="Manage the machine's access to the server">Manage</th>
+                                <th data-toggle="tooltip" title="View more details about the machine">Quick Run</th>
+                            </tr>
+
+                        </thead>
+                        <tbody>
+
+                            @foreach (var robot in Model)
+                            {
+                                <tr>
+                                    <td>
+                                        <button type="button" class="close" aria-label="Close" onclick="deleteWorkerEntry('@robot.PublicKey')">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </td>
+                                    <td data-toggle="tooltip" title="@robot.PublicKey">@robot.MachineName</td>
+                                    <td>@robot.UserName</td>
+                                    <td>@robot.AccountStatus.ToString()</td>
+                                    <td>@robot.LastCommunicationReceived</td>
+                                    <td>@robot.LastExecutionStatus</td>
+                                    <td><button type="button" class="close" aria-label="Close" onclick="pingWorker('@robot.PublicKey')"><span class="glyphicon glyphicon-heart" aria-hidden="true"></span></button></td>
+
+
+                                    <td style="min-width:150px;min-height:80px;">
+                                        @switch (robot.AccountStatus)
+                                        {
+                                            case (int)tasktServer.Models.ApprovalStatus.RequiresApproval:
+                                                <button class="btn btn-success btn-sm" onclick="updateRobot(this, '@robot.Id', 'approve')">Approve Robot</button>
+                                                break;
+                                            case (int)tasktServer.Models.ApprovalStatus.Enabled:
+                                                <button class="btn btn-danger btn-sm" onclick="updateRobot(this, '@robot.Id', 'disable')">Disable Robot</button>
+                                                break;
+                                            case (int)tasktServer.Models.ApprovalStatus.Disabled:
+                                                <button class="btn btn-primary btn-sm" onclick="updateRobot(this, '@robot.Id', 'enable')">Enable Robot</button>
+                                                break;
+                                            default:
+                                                break;
+
+
+
+                                        }
+                                    </td>
+                                    <td> <button class="btn btn-primary btn-sm" onclick="debugExecute('@robot.PublicKey')">Execute Task</button></td>
+                                </tr>
+                            }
+
+
+
+
+
+
+
+
+                        </tbody>
+                    </table>
+                    <h5>@Model.Count known client(s)</h5>
+                }
+
+
+
+
+            </div>
+        </div>
+    </div>
+</body>
+</html>
