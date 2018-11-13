@@ -11,17 +11,17 @@ namespace tasktServer.Models
     public static class WorkForceManagement
     {
 
-        private static List<RobotClient> ConnectedClients = new List<RobotClient>();
+        private static List<tasktClient> ConnectedClients = new List<tasktClient>();
 
-        public static List<RobotClient> GetClients()
+        public static List<tasktClient> GetClients()
         {
             return ConnectedClients;
         }
-        public static void AddClient(RobotClient newClient)
+        public static void AddClient(tasktClient newClient)
         {
             ConnectedClients.Add(newClient);
         }
-        public static RobotClient FindClientByIP(string ipAddress)
+        public static tasktClient FindClientByIP(string ipAddress)
         {
             var requiredClient = ConnectedClients.Where(itm => itm.IPAddress == ipAddress).FirstOrDefault();
             if (requiredClient != null)
@@ -33,7 +33,7 @@ namespace tasktServer.Models
                 return null;
             }
         }
-        public static RobotClient FindClientByPublicKey(string publicKey)
+        public static tasktClient FindClientByPublicKey(string publicKey)
         {
             var requiredClient = ConnectedClients.Where(itm => itm.PublicKey == publicKey).FirstOrDefault();
             if (requiredClient != null)
@@ -45,7 +45,7 @@ namespace tasktServer.Models
                 return null;
             }
         }
-        public static RobotClient FindClientByID(string id)
+        public static tasktClient FindClientByID(string id)
         {
             var requiredClient = ConnectedClients.Where(itm => itm.id == id).FirstOrDefault();
             if (requiredClient != null)

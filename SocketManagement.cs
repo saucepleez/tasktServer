@@ -9,6 +9,7 @@ using System.Net.WebSockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Serilog;
 
 namespace tasktServer
 {
@@ -34,11 +35,11 @@ namespace tasktServer
                 }
                 catch (Exception ex)
                 {
-                    throw;
+                    throw ex;
                 }
-             
+
             }
-          
+
         }
 
         /// <summary>
@@ -73,131 +74,121 @@ namespace tasktServer
                 var arraySegment = new ArraySegment<byte>(buffer, 0, result.Count);
                 var incomingMessage = System.Text.Encoding.Default.GetString(arraySegment.Array);
                 incomingMessage = incomingMessage.Substring(0, result.Count);
+                System.Console.WriteLine(incomingMessage);
 
                 //convert client data
                 var clientData = Newtonsoft.Json.JsonConvert.DeserializeObject<SocketPackage>(incomingMessage);
                 var clientInfo = string.Join(", ", "MACHINE: " + clientData.MACHINE_NAME, "USER: " + clientData.USER_NAME, "MESSAGE: " + clientData.MESSAGE, "IP: " + ipAddress);
 
-
-
-
-
+                
+                //determine if we were pinging this client for availability
                 if (clientData.MESSAGE.StartsWith("CLIENT_STATUS="))
                 {
+                    //get client update
                     var clientUpdate = clientData.MESSAGE.Replace("CLIENT_STATUS=", "");
 
+                    //find client socket connection
                     var socketClient = ActiveSocketClients.GetClient(clientData.PUBLIC_KEY);
+
+                    //check if we are awaiting a ping reply from this client
                     if (socketClient.PingRequest.AwaitingPingReply)
                     {
+                        //update client object accordingly
                         socketClient.PingRequest.AwaitingPingReply = false;
                         socketClient.PingRequest.ClientStatus = clientUpdate;
                         socketClient.PingRequest.ReadyForUIReporting = true;
                     }
 
-           
+                    //log update from worker
                     LogEvent(new ApplicationLogs() { Type = "WORKER UPDATE", Guid = connectionGUID, Message = clientUpdate, LoggedBy = clientData.PUBLIC_KEY });
 
+                    //get reference to the client
                     var worker = dbContext.Workers.Where(f => f.PublicKey == clientData.PUBLIC_KEY).FirstOrDefault();
-                    if (worker != null)
-                    {
-                        worker.LastCommunicationReceived = DateTime.Now;
-                        worker.LastExecutionStatus = clientUpdate;
-                        dbContext.SaveChanges();
-                    }
 
+                    //update communication
+                    worker.LastCommunicationReceived = DateTime.Now;
+                    dbContext.SaveChanges();
+
+                    //send acknowledge to client
                     await SendMessageAsync(webSocket, "ACK", CancellationToken.None);
                 }
 
 
-
+                //log client connection
                 LogEvent(new ApplicationLogs() {Guid = connectionGUID, Message = "ROBOT CONNECTED FROM '" + ipAddress + "'", LoggedBy = "SYSTEM", Type = "SOCKET REQUEST" });
                 LogEvent(new ApplicationLogs() {Guid = connectionGUID, Message = "CLIENT INFO: " + clientInfo + "", LoggedBy = "SYSTEM", Type = "SOCKET REQUEST" });
 
 
-          
-
-                //if public key is null or empty we automatically assign
+                //determine if this client is known
                 if ((string.IsNullOrEmpty(clientData.PUBLIC_KEY)) || (dbContext.Workers.Where(f => f.PublicKey == clientData.PUBLIC_KEY).FirstOrDefault() == null))
                 {
+                    //client is new or not yet configured       
 
+                    //create log
                     LogEvent(new ApplicationLogs() { Guid = connectionGUID, Message = "ROBOT NOT REGISTERED", LoggedBy = "SYSTEM", Type = "SOCKET REQUEST" });
 
+                    //generate key pair - public key sent to client and private key stored locally
                     var generatedKeys = tasktServer.Cryptography.CreateKeyPair();
+
+                    //add as a new worker to the database
                     var worker = new Workers() { MachineName = clientData.MACHINE_NAME, UserName = clientData.USER_NAME, AccountStatus = (int)ApprovalStatus.RequiresApproval, LastCommunicationReceived = DateTime.Now, PublicKey = generatedKeys.Item2, PrivateKey = generatedKeys.Item1 };
                     dbContext.Workers.Add(worker);
+
+                    //save changes
                     dbContext.SaveChanges();
 
-
+                    //set client as an active socket client which enables the ability to execute scripts
                     ActiveSocketClients.SetClient(clientData.PUBLIC_KEY, webSocket);
 
-                    LogEvent(new ApplicationLogs() { Guid = connectionGUID, Message = "ROBOT GIVEN NEW PUBLIC KEY AND AWAITING AUTHORIZATION", LoggedBy = "SYSTEM", Type = "SOCKET REQUEST" });
+                    //create log
+                    LogEvent(new ApplicationLogs() { Guid = connectionGUID, Message = "ROBOT GIVEN NEW PUBLIC KEY AND AUTHENTICATED AUTOMATICALLY (DANGEROUS!)", LoggedBy = "SYSTEM", Type = "SOCKET REQUEST" });
 
+                    //send key back to client
                     await SendMessageAsync(webSocket, "ACCEPT_KEY=" + worker.PublicKey, CancellationToken.None);
                 }
                 else
                 {
-                    var knownClient = dbContext.Workers.Where(f => f.PublicKey == clientData.PUBLIC_KEY).FirstOrDefault();
-                    knownClient.LastCommunicationReceived = DateTime.Now;
-                    dbContext.SaveChanges();
-
-
-                    ActiveSocketClients.SetClient(clientData.PUBLIC_KEY, webSocket);
 
                    
+                    //find client info
+                    var knownClient = dbContext.Workers.Where(f => f.PublicKey == clientData.PUBLIC_KEY).FirstOrDefault();
 
+                    //update last communication received
+                    knownClient.LastCommunicationReceived = DateTime.Now;
 
-                    switch (knownClient.AccountStatus)
-                    {
-                        case (int)ApprovalStatus.RequiresApproval:
-                            LogEvent(new ApplicationLogs() { Guid = connectionGUID, Message = "RESPONDED WORKER_AWAITING_APPROVAL", LoggedBy = "SYSTEM", Type = "SOCKET REQUEST" });
-                            await SendMessageAsync(webSocket, "WORKER_AWAITING_APPROVAL", CancellationToken.None);
-                            break;
-                        case (int)ApprovalStatus.Disabled:
-                            LogEvent(new ApplicationLogs() { Guid = connectionGUID, Message = "RESPONDED WORKER_DISABLED", LoggedBy = "SYSTEM", Type = "SOCKET REQUEST" });
-                            await SendMessageAsync(webSocket, "WORKER_DISABLED", CancellationToken.None);
-                            break;
-                        case (int)ApprovalStatus.Enabled:
-                            LogEvent(new ApplicationLogs() { Guid = connectionGUID, Message = "RESPONDED WORKER_ENABLED", LoggedBy = "SYSTEM", Type = "SOCKET REQUEST" });
-                            await SendMessageAsync(webSocket, "WORKER_ENABLED", CancellationToken.None);
-                            break;
-                        default:
-                            break;
-                    }
+                    //save changes
+                    dbContext.SaveChanges();
+
+                    //set client as active and available
+                    ActiveSocketClients.SetClient(clientData.PUBLIC_KEY, webSocket);
+
+                    //send message back to client
+                    await SendMessageAsync(webSocket, "WORKER_ENABLED", CancellationToken.None);
+
+                    //APPROVAL PROCESS, FUTURE ENHANCEMENT!
+                    //switch (worker.ApprovalStatus)
+                    //{
+                    //    case ApprovalStatus.RequiresApproval:
+                    //        LogEvent(new ApplicationLogs() { Guid = connectionGUID, Message = "RESPONDED WORKER_AWAITING_APPROVAL", LoggedBy = "SYSTEM", Type = "SOCKET REQUEST" });
+                    //        await SendMessageAsync(webSocket, "WORKER_AWAITING_APPROVAL", CancellationToken.None);
+                    //        break;
+                    //    case ApprovalStatus.Disabled:
+                    //        LogEvent(new ApplicationLogs() { Guid = connectionGUID, Message = "RESPONDED WORKER_DISABLED", LoggedBy = "SYSTEM", Type = "SOCKET REQUEST" });
+                    //        await SendMessageAsync(webSocket, "WORKER_DISABLED", CancellationToken.None);
+                    //        break;
+                    //    case ApprovalStatus.Enabled:
+                    //        LogEvent(new ApplicationLogs() { Guid = connectionGUID, Message = "RESPONDED WORKER_ENABLED", LoggedBy = "SYSTEM", Type = "SOCKET REQUEST" });
+                    //        await SendMessageAsync(webSocket, "WORKER_ENABLED", CancellationToken.None);
+                    //        break;
+                    //    default:
+                    //        break;
+                    //}
                 }
 
                 result = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
             }
 
             await webSocket.CloseAsync(result.CloseStatus.Value, result.CloseStatusDescription, CancellationToken.None);
-        }
-
-        /// <summary>
-        /// Sends an outbound socket message containing script data to be executed
-        /// </summary>
-        /// <param name="machineName"></param>
-        /// <param name="scriptName"></param>
-        /// <returns></returns>
-        public static string SendScriptToClient(string machineName, string scriptName)
-        {
-            List<RobotClient> connectedClients = WorkForceManagement.GetClients();
-            RobotClient requiredConn = connectedClients.Where(client => client.MachineName == machineName).FirstOrDefault();
-
-            if (requiredConn != null)
-            {
-
-                var rpaScriptsFolder = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "\\sharpRPA\\My Scripts\\";
-                System.Xml.XmlDocument dom = new System.Xml.XmlDocument();
-                dom.Load(rpaScriptsFolder + scriptName);
-                byte[] bytes = System.Text.Encoding.Default.GetBytes(dom.OuterXml);
-                var buffer = new ArraySegment<Byte>(bytes, 0, bytes.Length);
-                requiredConn.ClientSocket.SendAsync(buffer, WebSocketMessageType.Text, true, CancellationToken.None);
-                return "Script Sent To Client";
-
-            }
-            else
-            {
-                return "Client Not Found";
-            }
         }
 
         /// <summary>

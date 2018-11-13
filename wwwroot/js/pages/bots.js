@@ -12,11 +12,14 @@
                 window.setInterval(function () {
                     loadWorkforce(false);
                 }, 5000);
+
+              
             }
             else {
                 $('#workforce').empty().append(response);
             }
 
+          
         },
         error: function (error) {
  
@@ -146,7 +149,7 @@ function debugExecute(key) {
             data: {key: key},
             type: "POST",
             success: function (data) {
-                alert(data);
+                //alert(data);
             }
         }
     );
@@ -155,6 +158,87 @@ function debugExecute(key) {
 function showError(msg) {
     $('#notificationHeader').text(msg);
     $('#notificationHeader').slideDown();
+}
+
+function getLogsContinously(clientKey) {
+
+    if ($('#logs').is(":visible")) {
+        $('#logs').hide();
+        return;
+    }
+
+
+    $('#logs').show();
+    $('#logs').empty();
+    window.setInterval(function () {
+        getEngineLogs(clientKey);
+    }, 500);
+
+}
+
+function getEngineLogs(clientKey) {
+
+
+    $.ajax(
+        {
+            url: "/Api/GetLogs",
+            data: { ClientName: clientKey },
+            type: "GET",
+            success: function (data) {
+
+                //get length of logs
+                var logLength = $('.engine-log').length;
+   
+                if (data.length < logLength) {
+                   // $('#logs').empty();
+                    logLength = 0;
+                }
+
+                //check log lengths
+                if (logLength == 0) {
+
+                    //no logs have been added to view yet
+
+                    $.each(data, function (key, value) {
+                        $('#logs').append('<div id="log' + key + '" class="engine-log">' + value.loggedOn + " - " + value.message + '</div>');
+                    });
+
+                    //scroll
+                    var objDiv = document.getElementById("logs");
+                    objDiv.scrollTop = objDiv.scrollHeight;
+
+                }
+                else if (data.length > logLength) {
+
+                    //get difference
+                    var difference = data.length - logLength;
+
+
+                    //append each new log
+                    for (var i = data.length - difference; i < data.length; i++) {
+                        $('#logs').append('<div id="log' + i + '" class="engine-log">' + data[i].loggedOn + " - " + data[i].message + '</div>');
+                        $('#log' + i).delay(250).fadeOut().fadeIn('slow') 
+                    }
+
+                    //scroll
+                    var objDiv = document.getElementById("logs");
+                    objDiv.scrollTop = objDiv.scrollHeight;
+                }
+               
+           
+
+
+
+
+
+
+
+
+
+            }
+        }
+    );
+
 }
 
 //function setupRecurrence(recurrence) {

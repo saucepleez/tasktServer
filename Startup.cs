@@ -13,6 +13,7 @@ using System.Threading;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.AspNetCore.Mvc;
 using System.Text;
+using Serilog;
 
 namespace tasktServer
 {
@@ -34,7 +35,19 @@ namespace tasktServer
            
 
             string baseDir = env.ContentRootPath;
-            AppDomain.CurrentDomain.SetData("TASK_FOLDER", System.IO.Path.Combine(baseDir, "App_Data", "Tasks"));
+
+            AppDomain.CurrentDomain.SetData("AppData", System.IO.Path.Combine(baseDir, "AppData"));
+
+            //get log path
+            var appData = AppDomain.CurrentDomain.GetData("AppData") as string;
+            var filePath = System.IO.Path.Combine(appData, "EngineLogs.txt");
+
+            //create logger
+            var logger = new LoggerConfiguration().WriteTo.File(filePath).CreateLogger();
+            AppDomain.CurrentDomain.SetData("EngineLogger", logger);
+
+
+
 
         }
 

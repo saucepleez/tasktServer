@@ -3,7 +3,15 @@ body {
     background-color: #2e2e2e;
     font-family: 'Ropa Sans', sans-serif;
 }
-
+#logs {
+    background-color: #fff;
+    height: 300px;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    overflow-y: scroll;
+    display: none;
+}
 h1 {
     color: #fff;
 }

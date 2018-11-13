@@ -30,23 +30,32 @@ namespace tasktServer.Controllers
 
         public IActionResult RetrieveWorkforce()
         {
+            //database context
             tasktserverContext dbContext = new tasktserverContext();
+
+            //get workers
             var workers = dbContext.Workers.ToList();
 
-
-         
+            //return view
             return PartialView("~/Views/Bots/PartialViews/Workforce.cshtml", workers);
         }
 
         public IActionResult DeleteWorkerEntry(string key)
         {
+            //database context
             tasktserverContext dbContext = new tasktserverContext();
+
+            //get selected worker
             var workersDeleted = dbContext.Workers.Where(f => f.PublicKey == key);
+
+            //remove worker
             dbContext.Workers.RemoveRange(workersDeleted);
+
+            //save
             dbContext.SaveChanges();
 
-            var workers = dbContext.Workers.ToList();
-            return PartialView("~/Views/Bots/PartialViews/Workforce.cshtml", workers);
+            //return view
+            return PartialView("~/Views/Bots/PartialViews/Workforce.cshtml", dbContext.Workers);
 
 
         }
@@ -79,7 +88,7 @@ namespace tasktServer.Controllers
             } while ((!clientRequired.PingRequest.ReadyForUIReporting));
 
 
-          return clientRequired.PingRequest.ClientStatus;
+          return clientRequired.PingRequest.ClientStatus + " @ " + DateTime.Now.ToString();
 
 
 
@@ -97,36 +106,6 @@ namespace tasktServer.Controllers
             return PartialView("~/Views/Bots/PartialViews/Schedule.cshtml");
         }
 
-        public IActionResult UpdateRobot(string id, string approvalAction)
-        {
-
-#warning change to try parse!
-            var intID = int.Parse(id);
-
-            tasktserverContext dbContext = new tasktserverContext();
-           var requiredWorker = dbContext.Workers.Where(f => f.Id == intID).FirstOrDefault();
-            //var client = Models.ApprovalStatus.WorkForceManagement.FindClientByID(id);
-            switch (approvalAction)
-            {
-                case "approve":
-                    requiredWorker.AccountStatus = (int)Models.ApprovalStatus.Enabled;
-                    break;
-                case "disable":
-                    requiredWorker.AccountStatus = (int)Models.ApprovalStatus.Disabled;
-                    break;
-                case "enable":
-                    requiredWorker.AccountStatus = (int)Models.ApprovalStatus.Enabled;
-                    break;
-                default:
-                    break;
-            }
-
-            //write back to database
-            dbContext.SaveChanges();
-
-          
-            return PartialView("~/Views/Bots/PartialViews/Workforce.cshtml", dbContext.Workers.ToList());
-        }
 
 
         [HttpPost("UploadAndExecute")]
@@ -156,7 +135,9 @@ namespace tasktServer.Controllers
 
 
             //get task folder
-            string taskFolder = AppDomain.CurrentDomain.GetData("TASK_FOLDER").ToString();
+            var appData = AppDomain.CurrentDomain.GetData("AppData") as string;
+            string taskFolder = System.IO.Path.Combine(appData, "Tasks");
+
             var files = System.IO.Directory.GetFiles(taskFolder);
 
             foreach (var fil in files)
@@ -165,11 +146,6 @@ namespace tasktServer.Controllers
                 clientRequired.SendMessageAsync(taskData);
                 break;
             }
-
-
-         
-
-        
 
             return taskFolder;
 
