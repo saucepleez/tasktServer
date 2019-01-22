@@ -1,0 +1,30 @@
+{
+  "name": "tasktServer",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@material-ui/core": "^3.9.0",
+    "@material-ui/icons": "^3.0.2",
+    "bootstrap": "^3.3.7",
+    "get-google-fonts": "^1.1.1",
+    "rc-tooltip": "^3.7.3",
+    "react": "^16.7.0",
+    "react-bootstrap": "^0.31.5",
+    "react-dom": "^16.7.0",
+    "react-router-bootstrap": "^0.24.4",
+    "react-router-dom": "^4.2.2",
+    "react-scripts": "1.0.17",
+    "react-table": "^6.8.6",
+    "react-vis": "^1.11.6",
+    "reactstrap": "^7.1.0",
+    "rimraf": "^2.6.2",
+    "typeface-roboto": "0.0.54",
+    "typeface-ubuntu": "0.0.65"
+  },
+  "scripts": {
+    "start": "rimraf ./build && react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test --env=jsdom",
+    "eject": "react-scripts eject"
+  }
+}

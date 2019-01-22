@@ -1,0 +1,40 @@
+import React, { Component } from 'react';
+import ReactDOM from 'react-dom';
+import Button from '@material-ui/core/Button';
+import TasktMetricCard from './components/TasktMetricCard';
+import './BotDashboard.css'
+import TaskList from './components/TaskList';
+import TopWorker from './components/TopWorkers'
+
+export class BotDashboard extends Component {
+    displayName = BotDashboard.name
+
+    render() {
+
+        return (
+
+            <div>
+               
+                <h1>My Dashboard</h1>
+                <p>View statistics and information about your workers.  Tasks are automatically closed if a worker does not update when finished and attempts to launch another task.</p>
+
+                <TasktMetricCard metricName="Tasks Running Now" api="/api/Tasks/Metrics/Running"></TasktMetricCard>
+                <TasktMetricCard metricName="Tasks Completed" api="/api/Tasks/Metrics/Completed"></TasktMetricCard>
+                <TasktMetricCard metricName="Tasks Closed" api="/api/Tasks/Metrics/Closed"></TasktMetricCard>
+                <TasktMetricCard metricName="Tasks Errored" api="/api/Tasks/Metrics/Errored"></TasktMetricCard>
+
+                <h2>Top Workers (Last 24 Hours)</h2>
+                <p>View your top workers for the last 24 hours.</p>
+                <TopWorker api="/api/Workers/Top"></TopWorker>
+
+                <h2>Latest Tasks</h2>
+                <p>Live view of the latest tasks being executed by your workers.</p>
+                <TaskList api="/api/Tasks/All"></TaskList>
+
+             
+            </div>
+        );
+    }
+}
+
+
