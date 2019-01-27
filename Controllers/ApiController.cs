@@ -109,7 +109,7 @@ namespace tasktServer.Controllers
         }
 
         [HttpGet("/api/Workers/CheckIn")]
-        public IActionResult CheckInWorker(Guid workerID)
+        public IActionResult CheckInWorker(Guid workerID, bool engineBusy)
         {
             using (var context = new Models.tasktDatabaseContext())
             {
@@ -122,8 +122,31 @@ namespace tasktServer.Controllers
                 else
                 {
                     targetWorker.LastCheckIn = DateTime.Now;
+                    Models.Task scheduledTask = null;
+
+                    if (!engineBusy)
+                    {
+                        scheduledTask = context.Tasks.Where(f => f.WorkerID == workerID && f.Status == "Scheduled").FirstOrDefault();
+
+                        if (scheduledTask != null)
+                        {
+                            scheduledTask.Status = "Deployed";
+                        }
+
+                       
+                    }
+
                     context.SaveChanges();
-                    return Ok(targetWorker);
+
+
+                    return Ok(new Models.CheckInResponse
+                    {
+                        Worker = targetWorker,
+                        ScheduledTask = scheduledTask
+                    });
+
+
+
                 }
 
             }
@@ -161,41 +184,61 @@ namespace tasktServer.Controllers
         #region Metrics API for Tasks
 
         [HttpGet("/api/Tasks/Metrics/Completed")]
-        public IActionResult GetCompletedTasks()
+        public IActionResult GetCompletedTasks([FromQuery]DateTime? startDate = null)
         {
+            if (startDate == null)
+            {
+                startDate = DateTime.Today;
+            }
+
             using (var context = new Models.tasktDatabaseContext())
             {
-                var completedTasks = context.Tasks.Where(f => f.Status == "Completed").Count();
+                var completedTasks = context.Tasks.Where(f => f.Status == "Completed").Where(f => f.TaskStarted >= startDate).Count();
                 return Ok(completedTasks + " completed");
             }
         }
 
         [HttpGet("/api/Tasks/Metrics/Closed")]
-        public IActionResult GetClosedTasks()
+        public IActionResult GetClosedTasks([FromQuery]DateTime? startDate = null)
         {
+            if (startDate == null)
+            {
+                startDate = DateTime.Today;
+            }
+
             using (var context = new Models.tasktDatabaseContext())
             {
-                var completedTasks = context.Tasks.Where(f => f.Status == "Closed").Count();
+                var completedTasks = context.Tasks.Where(f => f.Status == "Closed").Where(f => f.TaskStarted >= startDate).Count();
                 return Ok(completedTasks + " closed");
             }
         }
 
         [HttpGet("/api/Tasks/Metrics/Errored")]
-        public IActionResult GetErroredTasks()
+        public IActionResult GetErroredTasks([FromQuery]DateTime? startDate = null)
         {
+            if (startDate == null)
+            {
+                startDate = DateTime.Today;
+            }
+
             using (var context = new Models.tasktDatabaseContext())
             {
-                var erroredTasks = context.Tasks.Where(f => f.Status == "Error").Count();
+                var erroredTasks = context.Tasks.Where(f => f.Status == "Error").Where(f => f.TaskStarted >= startDate).Count();
                 return Ok(erroredTasks + " errored");
             }
         }
 
         [HttpGet("/api/Tasks/Metrics/Running")]
-        public IActionResult GetRunningTasks()
+        public IActionResult GetRunningTasks([FromQuery]DateTime? startDate = null)
         {
+            if (startDate == null)
+            {
+                startDate = DateTime.Today;
+            }
+
             using (var context = new Models.tasktDatabaseContext())
             {
-                var runningTasks = context.Tasks.Where(f => f.Status == "Running").Count();
+                var runningTasks = context.Tasks.Where(f => f.Status == "Running").Where(f => f.TaskStarted >= startDate).Count();
                 return Ok(runningTasks + " running");
             }
 
@@ -256,19 +299,62 @@ namespace tasktServer.Controllers
         }
 
         [HttpGet("/api/Tasks/Update")]
-        public IActionResult UpdateTask(Guid taskID, string status, Guid workerID)
+        public IActionResult UpdateTask(Guid taskID, string status, Guid workerID, string userName, string machineName)
         {
             //Todo: Needs Testing
             using (var context = new Models.tasktDatabaseContext())
             {
                 var taskToUpdate = context.Tasks.Where(f => f.TaskID == taskID && f.WorkerID == workerID).FirstOrDefault();
-                taskToUpdate.TaskFinished = DateTime.Now;
+
+                switch (status)
+                { 
+                    case "Running":
+                        taskToUpdate.TaskStarted = DateTime.Now;
+                        taskToUpdate.UserName = userName;
+                        taskToUpdate.MachineName = machineName;
+                        break;
+                    default:
+                        taskToUpdate.TaskFinished = DateTime.Now;
+                        break;
+                }
+
+
+     
                 taskToUpdate.Status = status;
                 context.SaveChanges();
                 return Ok(taskToUpdate);
             }
 
 
+        }
+
+        [HttpGet("/api/Tasks/Schedule")]
+        public IActionResult ScheduleTask(Guid workerID, string taskName)
+        {
+            //Todo: Add Auth Check, Change to HTTPPost and validate workerID is valid
+
+
+            using (var context = new Models.tasktDatabaseContext())
+            {
+                //var workerExists = context.Workers.Where(f => f.WorkerID == workerID).Count() > 0;
+
+                //if (!workerExists)
+                //{
+                //    //Todo: Create Alert
+                //    return Unauthorized();
+                //}
+
+               
+                var newTask = new Models.Task();
+                newTask.WorkerID = workerID;   
+                newTask.TaskStarted = DateTime.Now;
+                newTask.Status = "Scheduled";
+                newTask.TaskName = taskName;
+
+                var entry = context.Tasks.Add(newTask);
+                context.SaveChanges();
+                return Ok(newTask);
+            }
         }
 
         #endregion

@@ -11,8 +11,8 @@ export default class TasktMetricCard extends React.Component {
       metricName: props.metricName,
       api: props.api,
       metric: null,
-
-      
+      timelineScope: props.timelineScope,
+      startDate: props.startDate
       };
 
     }
@@ -29,9 +29,9 @@ export default class TasktMetricCard extends React.Component {
                 .bind(this),
             1000
         );
-
-        console.log('running ' + this.state.api);
-        fetch(this.state.api)
+        var apiCall = this.state.api + "?startDate=" + this.state.startDate;
+        console.log('running ' + apiCall);
+        fetch(apiCall)
             .then(res => res.json())
             .then(
                 (result) => {
