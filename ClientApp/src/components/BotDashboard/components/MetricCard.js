@@ -7,6 +7,7 @@ import CardContent from '@material-ui/core/CardContent';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
 import '../BotDashboard';
+import Loader from '../../Loader';
 const styles = {
     card: {
         width: 220,
@@ -39,21 +40,35 @@ function MetricCard(props) {
     var metric = 'default';
     var metricName = 'default';
 
-    return (
+    if (props.metricName == 'Loading') {
+        return (
+            <Card className={classes.card} raised='true'>
+                <CardContent>
+                    <Loader type='spin' color='steelBlue' width='50px' height='50px'></Loader>;             
+                </CardContent>
+            </Card>);
+
+    }
+    else {
+        return (
+
             <Card className={classes.card} raised='true'>
                 <CardContent>
                     <Typography className={classes.title} color="textSecondary" gutterBottom>
-                    {props.metricName}
+                        {props.metricName}
                     </Typography>
 
                     <Typography className={classes.body}>
-                    {props.metric}
-                </Typography>
+                        {props.metric}
+                    </Typography>
 
                 </CardContent>
 
             </Card>
         );
+    }
+   
+   
 }
 
 

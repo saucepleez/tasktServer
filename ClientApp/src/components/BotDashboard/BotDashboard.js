@@ -1,12 +1,13 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
-import Button from '@material-ui/core/Button';
 import TasktMetricCard from './components/TasktMetricCard';
 import './BotDashboard.css'
 import TaskList from './components/TaskList';
 import TopWorker from './components/TopWorkers';
 import Select from 'react-select';
-
+import Modal from 'react-responsive-modal';
+import AddTask from './components/AddTask';
+import Loader from '../Loader';
 export class BotDashboard extends Component {
     displayName = BotDashboard.name
     timelineScope = 1440
@@ -19,31 +20,19 @@ export class BotDashboard extends Component {
 
         this.state = {
             timelineScope: 200,
-            startDate: formattedDate
+            startDate: formattedDate,
         }
-
-
-
-
     }
-
    
-
         render()
         {
-
-
             console.log('calculated date: ' + this.state.startDate);
         return (
-         
-             
-
-
             <div>
-              
                 <h1>My Dashboard</h1>
+                
                 <p>View statistics and information about your workers.  Tasks are automatically closed if a worker does not update when finished and attempts to launch another task.</p>
-     
+
                 <TasktMetricCard metricName="Tasks Running Now" api="/api/Tasks/Metrics/Running" startDate={this.state.startDate}></TasktMetricCard>
                 <TasktMetricCard metricName="Tasks Completed" api="/api/Tasks/Metrics/Completed" startDate={this.state.startDate}></TasktMetricCard>
                 <TasktMetricCard metricName="Tasks Closed" api="/api/Tasks/Metrics/Closed" startDate={this.state.startDate}></TasktMetricCard>
@@ -54,10 +43,10 @@ export class BotDashboard extends Component {
                 <TopWorker api="/api/Workers/Top"></TopWorker>
 
                 <h2>Latest Tasks</h2>
+                <AddTask></AddTask>
                 <p>Live view of the latest tasks being executed by your workers.</p>
                 <TaskList api="/api/Tasks/All"></TaskList>
-
-             
+       
             </div>
             );
 

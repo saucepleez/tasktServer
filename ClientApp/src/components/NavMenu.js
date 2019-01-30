@@ -31,7 +31,11 @@ export class NavMenu extends Component {
                             </NavItem>
                         </LinkContainer>
 
-
+                        <LinkContainer to={'/scripts'} exact>
+                            <NavItem>
+                                <Glyphicon glyph='file' />My Scripts
+                            </NavItem>
+                        </LinkContainer>
 
                     </Nav>
                 </Navbar.Collapse>

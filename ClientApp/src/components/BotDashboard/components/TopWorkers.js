@@ -1,6 +1,7 @@
 ﻿import React from 'react';
 import ReactTable from 'react-table';
-import 'react-table/react-table.css'
+import 'react-table/react-table.css';
+import Loader from '../../Loader';
 
 export default class TopWorkers extends React.Component {
     constructor(props) {
@@ -107,7 +108,7 @@ export default class TopWorkers extends React.Component {
         if (error) {
             return <div>Error</div>;
         } else if (!isLoaded) {
-            return <div>Loading</div>;
+            return <Loader type='spin' color='white' width='50px' height='50px'></Loader>;
         } else {
             return (
 

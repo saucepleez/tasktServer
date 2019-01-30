@@ -1,7 +1,7 @@
 ﻿import React from 'react';
 import ReactTable from 'react-table';
-import 'react-table/react-table.css'
-
+import 'react-table/react-table.css';
+import Loader from '../../Loader';
 export default class TaskList extends React.Component {
     constructor(props) {
         super(props);
@@ -83,8 +83,13 @@ export default class TaskList extends React.Component {
                 Cell: row => <div><span title={row.value}>{row.value}</span></div>
             },
             {
-                Header: 'Task Name',
-                accessor: 'taskName',
+                Header: 'Execution Type',
+                accessor: 'executionType',
+                Cell: row => <div><span title={row.value}>{row.value}</span></div>
+            },
+            {
+                Header: 'Script',
+                accessor: 'script',
                 Cell: row => <div><span title={row.value}>{row.value}</span></div>
             },
             {
@@ -99,14 +104,20 @@ export default class TaskList extends React.Component {
             },
             {
                 Header: 'Status',
-                accessor: 'status'
+                accessor: 'status',
+                Cell: row => <div><span title={row.value}>{row.value}</span></div>
+            },
+            {
+                Header: 'Remark',
+                accessor: 'remark',
+                Cell: row => <div><span title={row.value}>{row.value}</span></div>
             }]
 
 
         if (error) {
             return <div>Error</div>;
         } else if (!isLoaded) {
-            return <div>Loading</div>;
+            return <Loader type='spin' color='white' width='50px' height='50px'></Loader>;
         } else {
             return (
 

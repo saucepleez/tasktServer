@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using tasktServer.Models;
 
 // For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -123,6 +125,9 @@ namespace tasktServer.Controllers
                 {
                     targetWorker.LastCheckIn = DateTime.Now;
                     Models.Task scheduledTask = null;
+                    Models.PublishedScript publishedScript = null;
+
+
 
                     if (!engineBusy)
                     {
@@ -130,7 +135,21 @@ namespace tasktServer.Controllers
 
                         if (scheduledTask != null)
                         {
-                            scheduledTask.Status = "Deployed";
+
+
+                            publishedScript = context.PublishedScripts.Where(f => f.PublishedScriptID.ToString() == scheduledTask.Script).FirstOrDefault();
+
+                            if (publishedScript != null)
+                            {
+                                scheduledTask.Status = "Deployed";
+                            }
+                            else
+                            {
+                                scheduledTask.Status = "Deployment Failed";
+                            }
+
+
+                          
                         }
 
                        
@@ -142,7 +161,9 @@ namespace tasktServer.Controllers
                     return Ok(new Models.CheckInResponse
                     {
                         Worker = targetWorker,
-                        ScheduledTask = scheduledTask
+                        ScheduledTask = scheduledTask,
+                        PublishedScript = publishedScript
+
                     });
 
 
@@ -290,7 +311,8 @@ namespace tasktServer.Controllers
                 newTask.MachineName = machineName;
                 newTask.TaskStarted = DateTime.Now;
                 newTask.Status = "Running";
-                newTask.TaskName = taskName;
+                newTask.ExecutionType = "Local";
+                newTask.Script = taskName;
 
                 var entry = context.Tasks.Add(newTask);
                 context.SaveChanges();
@@ -299,27 +321,21 @@ namespace tasktServer.Controllers
         }
 
         [HttpGet("/api/Tasks/Update")]
-        public IActionResult UpdateTask(Guid taskID, string status, Guid workerID, string userName, string machineName)
+        public IActionResult UpdateTask(Guid taskID, string status, Guid workerID, string userName, string machineName, string remark)
         {
             //Todo: Needs Testing
             using (var context = new Models.tasktDatabaseContext())
             {
                 var taskToUpdate = context.Tasks.Where(f => f.TaskID == taskID && f.WorkerID == workerID).FirstOrDefault();
 
-                switch (status)
-                { 
-                    case "Running":
-                        taskToUpdate.TaskStarted = DateTime.Now;
-                        taskToUpdate.UserName = userName;
-                        taskToUpdate.MachineName = machineName;
-                        break;
-                    default:
-                        taskToUpdate.TaskFinished = DateTime.Now;
-                        break;
+                if (status == "Completed")
+                {
+                    taskToUpdate.TaskFinished = DateTime.Now;
                 }
-
-
-     
+       
+                taskToUpdate.UserName = userName;
+                taskToUpdate.MachineName = machineName;
+                taskToUpdate.Remark = remark;
                 taskToUpdate.Status = status;
                 context.SaveChanges();
                 return Ok(taskToUpdate);
@@ -328,36 +344,126 @@ namespace tasktServer.Controllers
 
         }
 
-        [HttpGet("/api/Tasks/Schedule")]
-        public IActionResult ScheduleTask(Guid workerID, string taskName)
+        [HttpPost("/api/Tasks/Schedule")]
+        public IActionResult ScheduleTask([FromBody] NewTaskRequest request)
         {
             //Todo: Add Auth Check, Change to HTTPPost and validate workerID is valid
+            if (request is null)
+            {
+                return BadRequest();
+            }
 
 
             using (var context = new Models.tasktDatabaseContext())
             {
-                //var workerExists = context.Workers.Where(f => f.WorkerID == workerID).Count() > 0;
+                var publishedScript = context.PublishedScripts.Where(f => f.PublishedScriptID == request.publishedScriptID).FirstOrDefault();
 
-                //if (!workerExists)
-                //{
-                //    //Todo: Create Alert
-                //    return Unauthorized();
-                //}
+                if (publishedScript == null)
+                {
+                    return BadRequest();
+                }
 
-               
+                var workerRecord = context.Workers.Where(f => f.WorkerID == request.workerID).FirstOrDefault();
+                if (workerRecord == null)
+                {
+                    return BadRequest();
+                }
+
                 var newTask = new Models.Task();
-                newTask.WorkerID = workerID;   
+                newTask.WorkerID = workerRecord.WorkerID;
                 newTask.TaskStarted = DateTime.Now;
                 newTask.Status = "Scheduled";
-                newTask.TaskName = taskName;
+                newTask.ExecutionType = "Remote";
+                newTask.Script = publishedScript.PublishedScriptID.ToString();
+                newTask.Remark = "Scheduled by tasktServer";
 
                 var entry = context.Tasks.Add(newTask);
                 context.SaveChanges();
                 return Ok(newTask);
+
             }
+
         }
 
+
         #endregion
+        [HttpGet("/api/Scripts/All")]
+        public IActionResult GetAllPublishedScripts()
+        {
+            using (var context = new Models.tasktDatabaseContext())
+            {
+                //var publishedScripts = context.PublishedScripts.ToList().OrderBy(f => f.WorkerID);
+                //var workers = context.Workers.Include(d => context.Workers.Where(f => f.WorkerID == d.WorkerID));
+
+                //context.PublishedScripts.Include(context.Workers.ToList());
+
+
+                var scripts = (from publishedScripts in context.PublishedScripts
+                               join worker in context.Workers on publishedScripts.WorkerID equals worker.WorkerID
+                               select new PublishedScript
+                               {
+                                   FriendlyName = publishedScripts.FriendlyName,
+                                   PublishedOn = publishedScripts.PublishedOn,
+                                   PublishedScriptID = publishedScripts.PublishedScriptID,
+                                   ScriptData = publishedScripts.ScriptData,
+                                   ScriptType = publishedScripts.ScriptType,
+                                  WorkerID = publishedScripts.WorkerID,
+                                  MachineName = worker.MachineName,
+                                  WorkerName = worker.UserName
+                                 
+                              }).ToList();
+
+
+
+                return Ok(scripts);
+
+
+            }
+
+          
+
+        }
+
+        [HttpPost("/api/Scripts/Publish")]
+        public IActionResult PublishScript([FromBody] PublishedScript script)
+        {
+            using (var context = new Models.tasktDatabaseContext())
+            {
+                if (script.OverwriteExisting)
+                {
+                    var currentItem = context.PublishedScripts.Where(f => f.WorkerID == script.WorkerID && f.FriendlyName == script.FriendlyName).OrderByDescending(f => f.PublishedOn).FirstOrDefault();
+                    currentItem.PublishedOn = DateTime.Now;
+                    currentItem.ScriptData = script.ScriptData;
+                    context.SaveChanges();
+                    return Ok("The script has been updated on the server.");
+                }
+                else
+                {
+                    script.PublishedOn = DateTime.Now;
+                    context.PublishedScripts.Add(script);
+                    context.SaveChanges();
+                    return Ok("The script has been successfully published.");
+                }
+              
+            }
+
+
+
+        }
+
+        [HttpGet("/api/Scripts/Exists")]
+        public IActionResult ScriptExistsCheck([FromQuery]Guid workerID, string friendlyName)
+        {
+            using (var context = new Models.tasktDatabaseContext())
+            {
+               var exists = context.PublishedScripts.Where(f => f.WorkerID == workerID && f.FriendlyName == friendlyName).Any();
+               return Ok(exists);
+            }
+
+
+        }
+
+
 
     }
 }

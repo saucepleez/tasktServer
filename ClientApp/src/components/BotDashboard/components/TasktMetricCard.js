@@ -1,6 +1,6 @@
 ﻿import React from 'react';
 import MetricCard from './MetricCard';
-
+import Loader from '../../Loader';
 export default class TasktMetricCard extends React.Component {
   constructor(props) {
       super(props);
@@ -60,7 +60,7 @@ export default class TasktMetricCard extends React.Component {
     if (error) {
         return <MetricCard metricName='Error!' metric='An error occured...'></MetricCard>;
     } else if (!isLoaded) {
-        return <MetricCard metricName='Loading...' metric=''></MetricCard>;
+        return  <MetricCard metricName='Loading' metric='loading'></MetricCard>
     } else {
       return (
           <MetricCard metricName={metricName} metric={metric}></MetricCard>

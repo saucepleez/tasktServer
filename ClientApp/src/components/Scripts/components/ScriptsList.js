@@ -2,14 +2,15 @@
 import ReactTable from 'react-table';
 import 'react-table/react-table.css';
 import Loader from '../../Loader';
-export default class WorkerList extends React.Component {
+export default class ScriptList extends React.Component {
+    displayName = ScriptList.name
     constructor(props) {
         super(props);
 
         this.state = {
             error: null,
             isLoaded: false,
-            workerList: [],
+            scriptList: [],
             api: props.api,
         };
 
@@ -37,7 +38,7 @@ export default class WorkerList extends React.Component {
                     console.log(result);
                     this.setState({
                         isLoaded: true,
-                        workerList: result
+                        scriptList: result
                     });
                 },
                 // Note: it's important to handle errors here
@@ -56,7 +57,7 @@ export default class WorkerList extends React.Component {
     }
 
     render() {
-        const { error, isLoaded, workerList, api } = this.state;
+        const { error, isLoaded, scriptList, api } = this.state;
         const divStyle = {
             backgroundColor: '#fff'
         };
@@ -68,18 +69,33 @@ export default class WorkerList extends React.Component {
                 Cell: row => <div><span title={row.value}>{row.value}</span></div>
             },
             {
+                Header: 'Worker Name',
+                accessor: 'workerName',
+                Cell: row => <div><span title={row.value}>{row.value}</span></div>
+            },
+            {
                 Header: 'Machine Name',
                 accessor: 'machineName',
                 Cell: row => <div><span title={row.value}>{row.value}</span></div>
             },
             {
-                Header: 'User Name',
-                accessor: 'userName',
+                Header: 'Script Name',
+                accessor: 'friendlyName',
                 Cell: row => <div><span title={row.value}>{row.value}</span></div>
             },
             {
-                Header: 'Last Check In',
-                accessor: 'lastCheckIn',
+                Header: 'Published On',
+                accessor: 'publishedOn',
+                Cell: row => <div><span title={row.value}>{row.value}</span></div>
+            },
+            {
+                Header: 'Script Type',
+                accessor: 'scriptType',
+                Cell: row => <div><span title={row.value}>{row.value}</span></div>
+            },
+            {
+                Header: 'Script Data',
+                accessor: 'scriptData',
                 Cell: row => <div><span title={row.value}>{row.value}</span></div>
             }]
 
@@ -89,14 +105,11 @@ export default class WorkerList extends React.Component {
         } else if (!isLoaded) {
             return <Loader type='spin' color='white' width='50px' height='50px'></Loader>;
         } else {
-        
-
             return (
-
 
                 <div style={divStyle}>
                     <ReactTable
-                        data={workerList}
+                        data={scriptList}
                         columns={columns}
                         defaultPageSize={20}
                         className="-striped -highlight"

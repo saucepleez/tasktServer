@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using tasktServer.Models;
 
 namespace tasktServer.Migrations
 {
     [DbContext(typeof(tasktDatabaseContext))]
-    partial class tasktDatabaseContextModelSnapshot : ModelSnapshot
+    [Migration("20190129144216_updatetasks")]
+    partial class updatetasks
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -49,8 +51,6 @@ namespace tasktServer.Migrations
                     b.Property<string>("IPAddress");
 
                     b.Property<string>("MachineName");
-
-                    b.Property<string>("Remark");
 
                     b.Property<string>("Script");
 

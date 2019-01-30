@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using tasktServer.Models;
 
 namespace tasktServer.Migrations
 {
     [DbContext(typeof(tasktDatabaseContext))]
-    partial class tasktDatabaseContextModelSnapshot : ModelSnapshot
+    [Migration("20190128013720_scriptFriendlyName")]
+    partial class scriptFriendlyName
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -44,19 +46,15 @@ namespace tasktServer.Migrations
                     b.Property<Guid>("TaskID")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<string>("ExecutionType");
-
                     b.Property<string>("IPAddress");
 
                     b.Property<string>("MachineName");
 
-                    b.Property<string>("Remark");
-
-                    b.Property<string>("Script");
-
                     b.Property<string>("Status");
 
                     b.Property<DateTime>("TaskFinished");
+
+                    b.Property<string>("TaskName");
 
                     b.Property<DateTime>("TaskStarted");
 
