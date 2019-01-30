@@ -11,6 +11,7 @@ namespace tasktServer.Models
         [Key]
         public Guid TaskID { get; set; }
         public Guid WorkerID { get; set; }
+        public string WorkerType { get; set; }
         public string MachineName { get; set; }
         public string UserName { get; set; }
         public string IPAddress { get; set; }

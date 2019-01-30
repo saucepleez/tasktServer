@@ -3,43 +3,23 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using tasktServer.Models;
 
 namespace tasktServer.Migrations
 {
     [DbContext(typeof(tasktDatabaseContext))]
-    partial class tasktDatabaseContextModelSnapshot : ModelSnapshot
+    [Migration("20190130232505_scheduling")]
+    partial class scheduling
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("ProductVersion", "2.2.1-servicing-10028")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-            modelBuilder.Entity("tasktServer.Models.Assignment", b =>
-                {
-                    b.Property<Guid>("AssignmentID")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<Guid>("AssignedWorker");
-
-                    b.Property<string>("AssignmentName");
-
-                    b.Property<int>("Frequency");
-
-                    b.Property<int>("Interval");
-
-                    b.Property<DateTime>("NewTaskDue");
-
-                    b.Property<Guid>("PublishedScriptID");
-
-                    b.HasKey("AssignmentID");
-
-                    b.ToTable("Assignments");
-                });
 
             modelBuilder.Entity("tasktServer.Models.PublishedScript", b =>
                 {
@@ -106,32 +86,9 @@ namespace tasktServer.Migrations
 
                     b.Property<string>("UserName");
 
-                    b.Property<Guid?>("WorkerPoolPoolID");
-
                     b.HasKey("WorkerID");
 
-                    b.HasIndex("WorkerPoolPoolID");
-
                     b.ToTable("Workers");
-                });
-
-            modelBuilder.Entity("tasktServer.Models.WorkerPool", b =>
-                {
-                    b.Property<Guid>("PoolID")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<string>("PoolName");
-
-                    b.HasKey("PoolID");
-
-                    b.ToTable("WorkerPools");
-                });
-
-            modelBuilder.Entity("tasktServer.Models.Worker", b =>
-                {
-                    b.HasOne("tasktServer.Models.WorkerPool")
-                        .WithMany("AssignedWorkers")
-                        .HasForeignKey("WorkerPoolPoolID");
                 });
 #pragma warning restore 612, 618
         }

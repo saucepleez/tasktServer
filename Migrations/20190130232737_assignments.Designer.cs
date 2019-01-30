@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using tasktServer.Models;
 
 namespace tasktServer.Migrations
 {
     [DbContext(typeof(tasktDatabaseContext))]
-    partial class tasktDatabaseContextModelSnapshot : ModelSnapshot
+    [Migration("20190130232737_assignments")]
+    partial class assignments
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -106,32 +108,9 @@ namespace tasktServer.Migrations
 
                     b.Property<string>("UserName");
 
-                    b.Property<Guid?>("WorkerPoolPoolID");
-
                     b.HasKey("WorkerID");
 
-                    b.HasIndex("WorkerPoolPoolID");
-
                     b.ToTable("Workers");
-                });
-
-            modelBuilder.Entity("tasktServer.Models.WorkerPool", b =>
-                {
-                    b.Property<Guid>("PoolID")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<string>("PoolName");
-
-                    b.HasKey("PoolID");
-
-                    b.ToTable("WorkerPools");
-                });
-
-            modelBuilder.Entity("tasktServer.Models.Worker", b =>
-                {
-                    b.HasOne("tasktServer.Models.WorkerPool")
-                        .WithMany("AssignedWorkers")
-                        .HasForeignKey("WorkerPoolPoolID");
                 });
 #pragma warning restore 612, 618
         }
