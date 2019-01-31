@@ -2,6 +2,7 @@
 import ReactTable from 'react-table';
 import 'react-table/react-table.css';
 import Loader from '../../Loader';
+import { Button } from 'react-bootstrap';
 export default class AssignmentList extends React.Component {
     displayName = AssignmentList.name
     constructor(props) {
@@ -66,7 +67,7 @@ export default class AssignmentList extends React.Component {
             {
                 Header: 'Assignment ID',
                 accessor: 'assignmentID',
-                Cell: row => <div><span title={row.value}>{row.value}</span></div>
+                Cell: row => <div><a href={`/assignments/${row.value}`}><span title={row.value}>{row.value}</span></a></div>
             },
             {
                 Header: 'Assignment Name',
@@ -102,7 +103,8 @@ export default class AssignmentList extends React.Component {
                 Header: 'New Task Due',
                 accessor: 'newTaskDue',
                 Cell: row => <div><span title={row.value}>{row.value}</span></div>
-            }]
+            }
+]
 
 
         if (error) {

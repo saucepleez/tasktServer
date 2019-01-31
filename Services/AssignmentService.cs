@@ -37,7 +37,7 @@ namespace tasktServer.Services
             tasktDatabaseContext dbContext = new tasktDatabaseContext();
            var assignments = dbContext.Assignments.Where(f => f.Enabled);
 
-
+            //look through each assignment to see if anything is required to be executed
             foreach (var assn in assignments)
             {
                 if (assn.NewTaskDue <= DateTime.Now)
@@ -81,6 +81,16 @@ namespace tasktServer.Services
                 }
 
             }
+
+            //look through stale tasks to expire after 10 minutes
+            var staleTasks = dbContext.Tasks.Where(f => f.ExecutionType == "Assignment" && f.TaskStarted <= DateTime.Now.AddMinutes(-10) && f.Status == "Scheduled");
+            foreach (var task in staleTasks)
+            {
+                task.Status = "Closed";
+                task.Remark = "Closed by service due to unavailable client";
+                task.TaskFinished = DateTime.Now;
+            }
+
 
 
             dbContext.SaveChanges();

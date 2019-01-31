@@ -10,7 +10,8 @@ export class Scripts extends Component {
         return (
 
             <div>
-                <h1>My Scripts</h1>         
+                <h1>My Scripts</h1>     
+                <p>View and manage scripts that your workers have uploaded for remote execution.</p>
                 <ScriptsList api="/api/Scripts/All"></ScriptsList>
             </div>
         );
