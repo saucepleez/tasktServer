@@ -10,6 +10,7 @@ namespace tasktServer.Models
     {
         [Key]
         public Guid AssignmentID { get; set; }
+        public bool Enabled { get; set; }
         public string AssignmentName { get; set; }
         public Guid PublishedScriptID { get; set; }
         public Guid AssignedWorker { get; set; }

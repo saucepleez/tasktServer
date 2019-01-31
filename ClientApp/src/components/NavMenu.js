@@ -37,6 +37,12 @@ export class NavMenu extends Component {
                             </NavItem>
                         </LinkContainer>
 
+                        <LinkContainer to={'/assignments'} exact>
+                            <NavItem>
+                                <Glyphicon glyph='time' />My Assignments
+                            </NavItem>
+                        </LinkContainer>
+
                     </Nav>
                 </Navbar.Collapse>
             </Navbar>

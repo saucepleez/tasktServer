@@ -463,6 +463,17 @@ namespace tasktServer.Controllers
 
         }
 
+        [HttpGet("/api/Assignments/All")]
+        public IActionResult GetAllAssignments()
+        {
+            using (var context = new Models.tasktDatabaseContext())
+            {
+                var assignments = context.Assignments.ToList().OrderByDescending(f => f.NewTaskDue);
+                return Ok(assignments);
+            }
+
+        }
+
 
 
     }

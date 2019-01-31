@@ -35,7 +35,7 @@ namespace tasktServer
             services.AddDbContext<Models.tasktDatabaseContext>
                 (options => options.UseSqlServer(connection));
 
-            services.AddHostedService<Services.TaskCreationService>();
+            services.AddHostedService<Services.AssignmentService>();
 
         }
 
