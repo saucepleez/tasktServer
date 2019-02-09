@@ -47,6 +47,28 @@ namespace tasktServer.Controllers
             using (var context = new Models.tasktDatabaseContext())
             {
                 var workers = context.Workers.ToList();
+
+                //get pools
+                var workerPools = context.WorkerPools.Include(f => f.PoolWorkers);
+
+                foreach (var pool in workerPools)
+                {
+                    if (pool.PoolWorkers.Count == 0)
+                        continue;
+
+                    var worker = new Worker
+                    {
+                        WorkerID = pool.WorkerPoolID,
+                        UserName = string.Concat("Pool '", pool.WorkerPoolName, "'")                     
+                    };
+
+                    workers.Add(worker);
+
+                }
+                   
+
+
+        
                 return Ok(workers);
             }
 
@@ -128,14 +150,17 @@ namespace tasktServer.Controllers
                     Models.PublishedScript publishedScript = null;
 
 
-
                     if (!engineBusy)
                     {
+
+
+
                         scheduledTask = context.Tasks.Where(f => f.WorkerID == workerID && f.Status == "Scheduled").FirstOrDefault();
+
 
                         if (scheduledTask != null)
                         {
-
+                            //worker directly scheduled
 
                             publishedScript = context.PublishedScripts.Where(f => f.PublishedScriptID.ToString() == scheduledTask.Script).FirstOrDefault();
 
@@ -151,8 +176,40 @@ namespace tasktServer.Controllers
 
                           
                         }
+                        else
+                        {
+                            //check if any pool tasks
 
-                       
+                            var workerPools = context.WorkerPools
+                                .Include(f => f.PoolWorkers)
+                                .Where(f => f.PoolWorkers.Any(s => s.WorkerID == workerID)).ToList();
+
+                            foreach (var pool in workerPools)
+                            {
+                                scheduledTask = context.Tasks.Where(f => f.WorkerID == pool.WorkerPoolID && f.Status == "Scheduled").FirstOrDefault();
+
+                                if (scheduledTask != null)
+                                {
+                                    //worker directly scheduled
+
+                                    publishedScript = context.PublishedScripts.Where(f => f.PublishedScriptID.ToString() == scheduledTask.Script).FirstOrDefault();
+
+                                    if (publishedScript != null)
+                                    {
+                                        scheduledTask.Status = "Deployed";
+                                    }
+                                    else
+                                    {
+                                        scheduledTask.Status = "Deployment Failed";
+                                    }
+
+                                    break;
+
+                                }
+
+                            }
+                                                        
+                        }                       
                     }
 
                     context.SaveChanges();
@@ -326,7 +383,7 @@ namespace tasktServer.Controllers
             //Todo: Needs Testing
             using (var context = new Models.tasktDatabaseContext())
             {
-                var taskToUpdate = context.Tasks.Where(f => f.TaskID == taskID && f.WorkerID == workerID).FirstOrDefault();
+                var taskToUpdate = context.Tasks.Where(f => f.TaskID == taskID).FirstOrDefault();
 
                 if (status == "Completed")
                 {
@@ -363,14 +420,29 @@ namespace tasktServer.Controllers
                     return BadRequest();
                 }
 
+
+                //find worker
                 var workerRecord = context.Workers.Where(f => f.WorkerID == request.workerID).FirstOrDefault();
+
+                //if worker wasnt found then search for pool
+          
                 if (workerRecord == null)
                 {
-                    return BadRequest();
+                    //find from pool
+                    var poolExists = context.WorkerPools.Any(s => s.WorkerPoolID == request.workerID);
+
+                    //if pool wasnt found
+                    if (!poolExists)
+                    {
+                        //return bad request
+                        return BadRequest();
+                    }
                 }
 
+
+                //create new task
                 var newTask = new Models.Task();
-                newTask.WorkerID = workerRecord.WorkerID;
+                newTask.WorkerID = request.workerID;
                 newTask.TaskStarted = DateTime.Now;
                 newTask.Status = "Scheduled";
                 newTask.ExecutionType = "Remote";
@@ -474,6 +546,88 @@ namespace tasktServer.Controllers
 
         }
 
+        [HttpPost("/api/Assignments/Add")]
+        public IActionResult AddAssignment([FromBody] Assignment assignment)
+        {
+            using (var context = new Models.tasktDatabaseContext())
+            {
+                context.Assignments.Add(assignment);
+                context.SaveChanges();
+                return Ok(assignment);
+
+            }
+
+
+
+        }
+        [HttpPost("/api/BotStore/Add")]
+        public IActionResult AddDataToBotStore([FromBody] BotStoreModel storeData)
+        {
+
+            using (var context = new Models.tasktDatabaseContext())
+            {
+
+                if (!context.Workers.Any(f => f.WorkerID == storeData.LastUpdatedBy))
+                {
+                    return Unauthorized();
+                }
+
+                if (context.BotStore.Any(f => f.BotStoreName == storeData.BotStoreName))
+                {
+                    var existingItem = context.BotStore.Where(f => f.BotStoreName == storeData.BotStoreName).FirstOrDefault();
+                    existingItem.BotStoreValue = storeData.BotStoreValue;
+                    existingItem.LastUpdatedOn = DateTime.Now;
+                    existingItem.LastUpdatedBy = storeData.LastUpdatedBy;
+                }
+                else
+                {
+                    storeData.LastUpdatedOn = DateTime.Now;
+                    context.BotStore.Add(storeData);
+                }
+
+                context.SaveChanges();
+                return Ok(storeData);
+
+            }
+
+
+
+        }
+        [HttpPost("/api/BotStore/Get")]
+        public IActionResult GetDataBotStore([FromBody] BotStoreRequest requestData)
+        {
+
+            using (var context = new Models.tasktDatabaseContext())
+            {
+
+                if (!context.Workers.Any(f => f.WorkerID == requestData.workerID))
+                {
+                    return Unauthorized();
+                }
+
+
+                var requestedItem = context.BotStore.Where(f => f.BotStoreName == requestData.BotStoreName).FirstOrDefault();
+
+                if (requestedItem == null)
+                {
+                    return NotFound();
+                }
+
+                switch (requestData.requestType)
+                {
+                    case BotStoreRequest.RequestType.BotStoreValue:
+                        return Ok(requestedItem.BotStoreValue);
+                    case BotStoreRequest.RequestType.BotStoreModel:
+                        return Ok(requestedItem);
+                    default:
+                        return StatusCode(400);
+                }
+
+            }
+
+
+
+        }
 
 
     }

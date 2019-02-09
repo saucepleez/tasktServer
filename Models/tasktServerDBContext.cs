@@ -27,5 +27,6 @@ namespace tasktServer.Models
         public DbSet<Worker> Workers { get; set; }
         public DbSet<PublishedScript> PublishedScripts { get; set; }
         public DbSet<Assignment> Assignments { get; set; }
+        public DbSet<BotStoreModel> BotStore { get; set; }
     }
 }
