@@ -38,7 +38,7 @@ export class BotDashboard extends Component {
                 <TasktMetricCard metricName="Tasks Closed" api="/api/Tasks/Metrics/Closed" startDate={this.state.startDate}></TasktMetricCard>
                 <TasktMetricCard metricName="Tasks Errored" api="/api/Tasks/Metrics/Errored" startDate={this.state.startDate}></TasktMetricCard>
 
-                <h2>Top Workers (Last 24 Hours)</h2>
+                <h2>Top Workers</h2>
                 <p>View your top workers for the last 24 hours.</p>
                 <TopWorker api="/api/Workers/Top"></TopWorker>
 
