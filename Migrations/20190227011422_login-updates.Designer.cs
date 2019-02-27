@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using tasktServer.Models;
 
 namespace tasktServer.Migrations
 {
     [DbContext(typeof(tasktDatabaseContext))]
-    partial class tasktDatabaseContextModelSnapshot : ModelSnapshot
+    [Migration("20190227011422_login-updates")]
+    partial class loginupdates
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
