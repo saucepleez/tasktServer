@@ -19,6 +19,7 @@ namespace tasktServer
 
         public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
+                .ConfigureKestrel(options => { options.AddServerHeader = false; })
                 .UseStartup<Startup>();
     }
 }

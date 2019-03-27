@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -6,7 +7,9 @@ using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Tokens;
 using System;
+using tasktServer.Models;
 
 namespace tasktServer
 {
@@ -25,16 +28,48 @@ namespace tasktServer
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
 
+            //create jwt signing key
+            var signingKey = new SymmetricSecurityKey(System.Text.Encoding.ASCII.GetBytes("add_key_here"));
+
+            //configure jwt auth
+            services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+             
+            }).AddJwtBearer(tok =>
+            {
+                tok.ClaimsIssuer = "localhost";
+                tok.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidIssuer = "localhost",
+                    ValidateAudience = false,
+                    RequireExpirationTime = false,
+                    ValidateLifetime = false,
+                    IssuerSigningKey = signingKey,
+      
+                
+                };
+                tok.SaveToken = true;
+            }
+
+            );
+
+
+
             // In production, the React files will be served from this directory
             services.AddSpaStaticFiles(configuration =>
             {
                 configuration.RootPath = "ClientApp/build";
             });
 
+  
 
-            var connection = @"Server=(localdb)\mssqllocaldb;Database=taskt;Trusted_Connection=True;ConnectRetryCount=0";
+            DatabaseConfiguration.ConnectionString = Configuration["ConnectionString"];
+
             services.AddDbContext<Models.tasktDatabaseContext>
-                (options => options.UseSqlServer(connection));
+                (options => options.UseSqlServer(DatabaseConfiguration.ConnectionString));
 
             services.AddHostedService<Services.AssignmentService>();
 
@@ -47,15 +82,19 @@ namespace tasktServer
             //REQUIRED WORKAROUND FOR .NET CORE 2.2
             CurrentDirectoryHelpers.SetCurrentDirectory();
 
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-            }
-            else
-            {
-                app.UseExceptionHandler("/Error");
-                app.UseHsts();
-            }
+            //if (env.IsDevelopment())
+            //{
+            //    app.UseDeveloperExceptionPage();
+            //}
+            //else
+            //{
+            //    app.UseExceptionHandler("/Error");
+            //    app.UseHsts();
+            //}
+
+
+            app.UseDeveloperExceptionPage();
+
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
@@ -138,4 +177,5 @@ namespace tasktServer
             }
         }
     }
+
 }

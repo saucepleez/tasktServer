@@ -12,7 +12,8 @@ namespace tasktServer.Models
         {
             if (!contextBuilder.IsConfigured)
             {
-                var connection = @"Server=(localdb)\mssqllocaldb;Database=taskt;Trusted_Connection=True;ConnectRetryCount=0";
+
+                var connection = DatabaseConfiguration.ConnectionString;
                 contextBuilder.UseSqlServer(connection);
             }
         }
@@ -30,4 +31,12 @@ namespace tasktServer.Models
         public DbSet<BotStoreModel> BotStore { get; set; }
         public DbSet<UserProfile> LoginProfiles { get; set; }
     }
+
+    public static class DatabaseConfiguration
+    {
+        public static string ConnectionString { get; set; }
+    }
+
+
+
 }
