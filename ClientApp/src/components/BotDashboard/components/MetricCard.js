@@ -44,7 +44,7 @@ function MetricCard(props) {
         return (
             <Card className={classes.card} raised='true'>
                 <CardContent>
-                    <Loader type='spin' color='steelBlue' width='50px' height='50px'></Loader>;             
+                    <Loader type='spin' color='steelBlue' width='50px' height='50px' />             
                 </CardContent>
             </Card>);
 
