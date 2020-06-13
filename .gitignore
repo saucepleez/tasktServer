@@ -3,3 +3,9 @@
 ################################################################################
 
 /tasktServer/Client/bin/Debug/netstandard2.1
+/tasktServer/Client/obj
+/tasktServer/Server/bin/Debug/netcoreapp3.1
+/tasktServer/Server/obj
+/tasktServer/Shared/bin/Debug/netstandard2.1
+/tasktServer/Shared/obj
+/.vs/tasktServer
