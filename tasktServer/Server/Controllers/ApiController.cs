@@ -387,6 +387,7 @@ namespace tasktServer.Controllers
                 if (status == "Completed")
                 {
                     taskToUpdate.TaskFinished = DateTime.Now;
+                    taskToUpdate.TotalSeconds = (taskToUpdate.TaskFinished - taskToUpdate.TaskStarted).TotalSeconds;
                 }
        
                 taskToUpdate.UserName = userName;

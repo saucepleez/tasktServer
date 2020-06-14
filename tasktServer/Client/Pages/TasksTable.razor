@@ -25,6 +25,7 @@ else
                 <th scope="col">Task Name</th>
                 <th scope="col">Started</th>
                 <th scope="col">Finished</th>
+                <th scope="col">Total Time</th>
                 <th scope="col">Status</th>
             </tr>
         </thead>
@@ -32,15 +33,16 @@ else
             @foreach (var task in taskList)
             {
 
-                <tr>
-                    <th scope="row">@task.TaskID</th>
-                    <td>@task.WorkerID</td>
-                    <td>@task.UserName@@@task.MachineName</td>
-                    <td>@task.Script</td>
-                    <td>@task.TaskStarted.ToString("MM/dd/yyyy hh:mm:ss")</td>
-                    <td>@task.TaskFinished.ToString("MM/dd/yyyy hh:mm:ss")</td>
-                    <td>@task.Status</td>
-                </tr>
+            <tr>
+                <th scope="row">@task.TaskID</th>
+                <td>@task.WorkerID</td>
+                <td>@task.UserName@@@task.MachineName</td>
+                <td>@task.Script</td>
+                <td>@task.TaskStarted.ToString("MM/dd/yyyy hh:mm:ss")</td>
+                <td>@task.TaskFinished.ToString("MM/dd/yyyy hh:mm:ss")</td>
+                <td>@task.TotalSeconds</td>
+                <td>@task.Status</td>
+            </tr>
             }
         </tbody>
     </table>

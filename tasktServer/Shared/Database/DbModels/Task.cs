@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -21,6 +22,7 @@ namespace tasktServer.Shared.Database.DbModels
         public string Remark { get; set; }
         public DateTime TaskStarted { get; set; }
         public DateTime TaskFinished { get; set; }
+        public double TotalSeconds { get; set; }
 
     }
 }
