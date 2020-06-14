@@ -1,0 +1,45 @@
+﻿@inject HttpClient Http
+@inject IJSRuntime jsRuntime
+
+<div class="card" style="width: 18rem; float:left; margin: 10px 10px 10px 10px;">
+    <div class="card-body">
+        <h5 class="card-title">@MetricName</h5>
+        <h6 class="card-subtitle mb-2 text-muted">@Result</h6>
+        <p class="card-text">@Description</p>
+    </div>
+</div>
+
+
+@code {
+    [Parameter]
+    public string MetricName { get; set; }
+    [Parameter]
+    public string API { get; set; }
+    [Parameter]
+    public string Description { get; set; }
+    [Parameter]
+    public DateTime StartDate { get; set; }
+    public string Result { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        var requestAPI = $"{API}?startDate={StartDate.ToString("MM/dd/yyyy")}";
+        await jsRuntime.InvokeAsync<string>("console.log", requestAPI);
+
+        Result = await Http.GetFromJsonAsync<string>(requestAPI);
+
+
+        System.Timers.Timer t = new System.Timers.Timer();
+        t.Elapsed += async (s, e) =>
+        {
+            Result = await Http.GetFromJsonAsync<string>($"{API}?startDate={StartDate.ToString("MM/dd/yyyy")}");
+            await jsRuntime.InvokeAsync<string>("console.log", $"{API}?startDate={StartDate.ToString("MM/dd/yyyy")}");
+            await InvokeAsync(StateHasChanged);
+        };
+
+        t.Interval = 5000;
+        t.Start();
+
+    }
+}

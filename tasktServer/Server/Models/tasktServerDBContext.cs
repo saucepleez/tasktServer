@@ -14,6 +14,8 @@ namespace tasktServer.Models
             {
 
                 var connection = DatabaseConfiguration.ConnectionString;
+                //temp override
+                connection = "Server=(localdb)\\mssqllocaldb;Database=taskt;Trusted_Connection=True;ConnectRetryCount=0";
                 contextBuilder.UseSqlServer(connection);
             }
         }
