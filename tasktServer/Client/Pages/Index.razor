@@ -1,0 +1,66 @@
+﻿@page "/"
+@using Radzen
+@using tasktServer.Shared.Models
+@inject HttpClient Http
+
+<div class="jumbotron jumbotron-fluid">
+    <div class="container">
+        <h1 class="display-4">tasktServer</h1>
+        <p class="lead">Powered by Free and Open-Source Process Automation</p>
+    </div>
+</div>
+
+<div class="card" style="margin: 0px 10px 10px 0px;">
+    <div class="card-body">
+
+        <h2>Bot Runtime Summary</h2>
+        <p>The following section provides a summary regarding bot performance. Once properly configured, your bots will call into the platform when they start running and finish running processes. The platform will automatically close any tasks out if the bot fails to provide a completion status upon the next time the bot indicates it is starting to run a new task.</p>
+
+        <div>
+            Filtering Metrics On Or After <Radzen.Blazor.RadzenDatePicker @bind-Value="value" DateFormat="MM/dd/yyyy" Change="@(args => Change(args))" />
+        </div>
+
+        <div>
+            <MetricCard MetricName="Running" API="api/Tasks/Metrics/Running" StartDate="@value" Description="Depicts the amount of tasks that are currently running."></MetricCard>
+            <MetricCard MetricName="Completed" API="api/Tasks/Metrics/Completed" StartDate="@value" Description="Depicts the amount of tasks that have completed successfully."></MetricCard>
+            <MetricCard MetricName="Errored" API="api/Tasks/Metrics/Errored" StartDate="@value" Description="Depicts the amount of tasks that experienced an error."></MetricCard>
+            <MetricCard MetricName="Closed" API="api/Tasks/Metrics/Closed" StartDate="@value" Description="Depicts the amount of tasks that were not updated after starting."></MetricCard>
+            <div style="clear: both;"></div>
+        </div>
+    </div>
+</div>
+
+
+<div class="card" style="margin: 0px 10px 10px 0px;">
+    <div class="card-body">
+        <h2>Top Workers</h2>
+        <p>The following section provides a summary of the top workers by task volume for the last 24 hours.</p>
+        <TopWorkerTable></TopWorkerTable>
+    </div>
+</div>
+
+
+
+<div class="card" style="margin: 0px 10px 10px 0px;">
+    <div class="card-body">
+        <h2>Latest Tasks</h2>
+        <p>The following section shows the latest tasks that have been executed.</p>
+        <TasksTable></TasksTable>
+    </div>
+</div>
+
+
+
+@code{
+    DateTime value = DateTime.Today;
+    void Change(DateTime? value)
+    {
+        StateHasChanged();
+    }
+
+    List<TopWorker> topWorkers { get; set; } = new List<TopWorker>();
+    protected override async Task OnInitializedAsync()
+    {
+        topWorkers = await Http.GetFromJsonAsync<List<TopWorker>>("/api/Workers/Top");
+    }
+}

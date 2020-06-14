@@ -1,0 +1,70 @@
+﻿@using tasktServer.Shared.DbModels
+@using System.Threading.Tasks 
+@inject HttpClient Http
+@inject IJSRuntime jsRuntime
+
+
+@if (isLoading)
+{
+    <b>Loading, Please Wait...</b>
+}
+else if (!isLoading && workers.Count == 0)
+{
+    <div class="jumbotron jumbotron-fluid">
+        <div class="container">
+            <h1 class="display-4">Nothing to see here...</h1>
+            <p class="lead">We were unable to locate any workers.</p>
+        </div>
+    </div>
+}
+else
+{
+    <table class="table table-sm table-bordered">
+        <thead class="thead-dark">
+            <tr>
+                <th scope="col">Worker ID</th>
+                <th scope="col">Name</th>
+                <th scope="col">Machine Name</th>
+                <th scope="col">Last Check In</th>
+                <th scope="col">Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var wrkr in workers)
+            {
+
+                <tr>
+                    <th scope="row">@wrkr.WorkerID</th>
+                    <td>@wrkr.UserName</td>
+                    <td>@wrkr.MachineName</td>
+                    <td>@wrkr.LastCheckIn.ToString("MM/dd/yyyy hh:mm:ss")</td>
+                    <td>@wrkr.Status</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+
+@code {
+    List<Worker> workers { get; set; } = new List<Worker>();
+    bool isLoading = true;
+    protected override async System.Threading.Tasks.Task OnInitializedAsync()
+    {
+        workers = await Http.GetFromJsonAsync<List<Worker>>("/api/Workers/All");
+        isLoading = false;
+
+        System.Timers.Timer t = new System.Timers.Timer();
+        t.Elapsed += async (s, e) =>
+        {
+            await jsRuntime.InvokeAsync<string>("console.log", $"Refreshing Worker List");
+            workers = await Http.GetFromJsonAsync<List<Worker>>("/api/Workers/All");
+            await InvokeAsync(StateHasChanged);
+        };
+
+        t.Interval = 5000;
+        t.Start();
+
+
+    }
+}
