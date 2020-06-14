@@ -1,8 +1,18 @@
-﻿@import url('open-iconic/font/css/open-iconic-bootstrap.min.css');
+﻿/*@import url('open-iconic/font/css/open-iconic-bootstrap.min.css');*/
 
-html, body {
+/*html, body {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}*/
+
+@font-face {
+    font-family: 'Montserrat'; 
+    src: url('Montserrat-Regular.ttf') format('truetype')
 }
+
+body {
+    font-family: 'Montserrat', Fallback, sans-serif;
+}
+
 
 a, .btn-link {
     color: #0366d6;
