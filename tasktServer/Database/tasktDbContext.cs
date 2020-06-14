@@ -2,9 +2,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using tasktServer.Shared.Database.DbModels;
+using tasktServer.Shared.DbModels;
 
-namespace tasktServer.Shared.Database
+namespace tasktServer.Database
 {
     public class tasktDbContext : DbContext
     {

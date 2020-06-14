@@ -4,8 +4,8 @@ using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using tasktServer.Shared.Models;
-using tasktServer.Shared.Database;
-using tasktServer.Shared.Database.DbModels;
+using tasktServer.Shared.DbModels;
+using tasktServer.Database;
 
 // For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 

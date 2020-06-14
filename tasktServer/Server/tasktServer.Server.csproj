@@ -8,13 +8,12 @@
     <PackageReference Include="CryptoHelper" Version="3.0.2" />
     <PackageReference Include="JWT" Version="7.2.1" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="3.2.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.5" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.1.5" />
     <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="6.6.0" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.6.0" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\Database\tasktServer.Database.csproj" />
     <ProjectReference Include="..\Client\tasktServer.Client.csproj" />
     <ProjectReference Include="..\Shared\tasktServer.Shared.csproj" />
   </ItemGroup>

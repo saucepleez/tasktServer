@@ -5,8 +5,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using tasktServer.Shared.Database.DbModels;
-using tasktServer.Shared.Database;
+using tasktServer.Shared.DbModels;
+using tasktServer.Database;
 
 namespace tasktServer.Services
 {
@@ -45,7 +45,7 @@ namespace tasktServer.Services
                 {
 
                     //create task
-                    var newTask = new Shared.Database.DbModels.Task();
+                    var newTask = new Shared.DbModels.Task();
                     newTask.WorkerID = assn.AssignedWorker;
                     newTask.TaskStarted = DateTime.Now;
                     newTask.Status = "Scheduled";

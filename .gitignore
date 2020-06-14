@@ -12,3 +12,5 @@
 /tasktServer.Database/obj
 /Database/bin/Debug/netcoreapp3.1
 /Database/obj
+/tasktServer/Database/obj
+/tasktServer/Database/bin/Debug/netcoreapp3.1

@@ -50,18 +50,18 @@ else
 
 
 @code {
-    List<tasktServer.Shared.Database.DbModels.Task> taskList { get; set; } = new List<tasktServer.Shared.Database.DbModels.Task>();
+    List<tasktServer.Shared.DbModels.Task> taskList { get; set; } = new List<tasktServer.Shared.DbModels.Task>();
     bool isLoading = true;
     protected override async Task OnInitializedAsync()
     {
-        taskList = await Http.GetFromJsonAsync<List<tasktServer.Shared.Database.DbModels.Task>>("/api/Tasks/All");
+        taskList = await Http.GetFromJsonAsync<List<tasktServer.Shared.DbModels.Task>>("/api/Tasks/All");
         isLoading = false;
 
         System.Timers.Timer t = new System.Timers.Timer();
         t.Elapsed += async (s, e) =>
         {
             await jsRuntime.InvokeAsync<string>("console.log", $"Refreshing Task List");
-            taskList = await Http.GetFromJsonAsync<List<tasktServer.Shared.Database.DbModels.Task>>("/api/Tasks/All");
+            taskList = await Http.GetFromJsonAsync<List<tasktServer.Shared.DbModels.Task>>("/api/Tasks/All");
             await InvokeAsync(StateHasChanged);
         };
 

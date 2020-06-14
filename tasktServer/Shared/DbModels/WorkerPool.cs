@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace tasktServer.Shared.Database.DbModels
+namespace tasktServer.Shared.DbModels
 {
     public class WorkerPool
     {
