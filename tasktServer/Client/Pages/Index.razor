@@ -1,5 +1,4 @@
 ﻿@page "/"
-@using tasktServer.Shared
 @using Radzen;
 @inject HttpClient Http
 
@@ -41,6 +40,16 @@
 
 
 
+<div class="card" style="margin: 0px 10px 10px 0px;">
+    <div class="card-body">
+        <h2>Latest Tasks</h2>
+        <p>The following section shows the latest tasks that have been executed.</p>
+        <TasksTable></TasksTable>
+    </div>
+</div>
+
+
+
 @code{
     DateTime value = DateTime.Today;
     void Change(DateTime? value)
@@ -48,7 +57,7 @@
         StateHasChanged();
     }
 
-    List<tasktServer.Shared.TopWorker> topWorkers { get; set; } = new List<TopWorker>();
+    List<tasktServer.Shared.TopWorker> topWorkers { get; set; } = new List<tasktServer.Shared.TopWorker>();
     protected override async Task OnInitializedAsync()
     {
         topWorkers = await Http.GetFromJsonAsync<List<tasktServer.Shared.TopWorker>>("/api/Workers/Top");

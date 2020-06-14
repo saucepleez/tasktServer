@@ -1,5 +1,4 @@
-﻿@using tasktServer.Shared
-@inject HttpClient Http
+﻿@inject HttpClient Http
 
 
 @if (isLoading)
@@ -49,7 +48,7 @@ else
 
 
 @code {
-    List<tasktServer.Shared.TopWorker> topWorkers { get; set; } = new List<TopWorker>();
+    List<tasktServer.Shared.TopWorker> topWorkers { get; set; } = new List<tasktServer.Shared.TopWorker>();
     bool isLoading = true;
     protected override async Task OnInitializedAsync()
     {

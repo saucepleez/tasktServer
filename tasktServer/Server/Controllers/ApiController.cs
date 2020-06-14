@@ -330,7 +330,7 @@ namespace tasktServer.Controllers
         {
             using (var context = new Models.tasktDatabaseContext())
             {
-                var runningTasks = context.Tasks.ToList().OrderByDescending(f => f.TaskStarted);
+                var runningTasks = context.Tasks.ToList().OrderByDescending(f => f.TaskStarted).Take(5);
                 return Ok(runningTasks);
             }
 

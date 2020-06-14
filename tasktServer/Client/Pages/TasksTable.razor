@@ -1,0 +1,58 @@
+﻿@inject HttpClient Http
+
+
+@if (isLoading)
+{
+    <b>Loading, Please Wait...</b>
+}
+else if (!isLoading && taskList.Count == 0)
+{
+    <div class="jumbotron jumbotron-fluid">
+        <div class="container">
+            <h1 class="display-4">Nothing to see here...</h1>
+            <p class="lead">We were unable to locate any tasks, indicating no workers have reported in yet.</p>
+        </div>
+    </div>
+}
+else
+{
+    <table class="table table-sm table-bordered">
+        <thead class="thead-dark">
+            <tr>
+                <th scope="col">Task ID</th>
+                <th scope="col">Worker ID</th>
+                <th scope="col">User@Machine</th>
+                <th scope="col">Task Name</th>
+                <th scope="col">Started</th>
+                <th scope="col">Finished</th>
+                <th scope="col">Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var task in taskList)
+            {
+
+                <tr>
+                    <th scope="row">@task.TaskID</th>
+                    <td>@task.WorkerID</td>
+                    <td>@task.UserName@@@task.MachineName</td>
+                    <td>@task.Script</td>
+                    <td>@task.TaskStarted</td>
+                    <td>@task.TaskFinished</td>
+                    <td>@task.Status</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+
+@code {
+    List<tasktServer.Shared.Task> taskList { get; set; } = new List<tasktServer.Shared.Task>();
+    bool isLoading = true;
+    protected override async Task OnInitializedAsync()
+    {
+        taskList = await Http.GetFromJsonAsync<List<tasktServer.Shared.Task>>("/api/Tasks/All");
+        isLoading = false;
+    }
+}
