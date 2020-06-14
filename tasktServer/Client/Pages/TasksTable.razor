@@ -37,8 +37,8 @@ else
                     <td>@task.WorkerID</td>
                     <td>@task.UserName@@@task.MachineName</td>
                     <td>@task.Script</td>
-                    <td>@task.TaskStarted</td>
-                    <td>@task.TaskFinished</td>
+                    <td>@task.TaskStarted.ToString("MM/dd/yyyy hh:mm:ss")</td>
+                    <td>@task.TaskFinished.ToString("MM/dd/yyyy hh:mm:ss")</td>
                     <td>@task.Status</td>
                 </tr>
             }
