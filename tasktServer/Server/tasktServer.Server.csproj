@@ -15,6 +15,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\Database\tasktServer.Database.csproj" />
     <ProjectReference Include="..\Client\tasktServer.Client.csproj" />
+    <ProjectReference Include="..\Database\tasktServer.Database.csproj" />
     <ProjectReference Include="..\Shared\tasktServer.Shared.csproj" />
   </ItemGroup>
 

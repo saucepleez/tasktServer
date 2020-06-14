@@ -81,7 +81,7 @@ namespace tasktServer.Controllers
             using (var context = new tasktDbContext())
             {
                 var topWorkerList = new List<TopWorker>();
-
+                
                 var groupedWorker = context.Tasks.ToList().Where(f => f.TaskStarted >= DateTime.Now.AddDays(-1)).GroupBy(f => f.WorkerID).OrderByDescending(f => f.Count());
 
                 foreach (var wrkr in groupedWorker)

@@ -14,7 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\tasktServer\Shared\tasktServer.Shared.csproj" />
+    <ProjectReference Include="..\Shared\tasktServer.Shared.csproj" />
   </ItemGroup>
 
 </Project>
