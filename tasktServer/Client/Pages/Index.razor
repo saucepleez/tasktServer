@@ -1,5 +1,6 @@
 ﻿@page "/"
-@using Radzen;
+@using Radzen
+@using tasktServer.Shared.Models
 @inject HttpClient Http
 
 <div class="jumbotron jumbotron-fluid">
@@ -57,9 +58,9 @@
         StateHasChanged();
     }
 
-    List<tasktServer.Shared.TopWorker> topWorkers { get; set; } = new List<tasktServer.Shared.TopWorker>();
+    List<TopWorker> topWorkers { get; set; } = new List<TopWorker>();
     protected override async Task OnInitializedAsync()
     {
-        topWorkers = await Http.GetFromJsonAsync<List<tasktServer.Shared.TopWorker>>("/api/Workers/Top");
+        topWorkers = await Http.GetFromJsonAsync<List<TopWorker>>("/api/Workers/Top");
     }
 }

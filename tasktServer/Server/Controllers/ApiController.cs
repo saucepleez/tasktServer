@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using tasktServer.Models;
+using tasktServer.Shared.Models;
+using tasktServer.Shared.Database;
+using tasktServer.Shared.Database.DbModels;
 
 // For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -29,7 +30,7 @@ namespace tasktServer.Controllers
         [HttpGet("/api/Workers/Metrics/Authorized")]
         public IActionResult GetAuthorizedWorkers()
         {
-            using (var context = new Models.tasktDatabaseContext())
+            using (var context = new tasktDbContext())
             {
                 var workers = context.Workers.Count();
                 return Ok(workers + " known worker(s)");
@@ -44,7 +45,7 @@ namespace tasktServer.Controllers
         [HttpGet("/api/Workers/All")]
         public IActionResult GetAllWorkers()
         {
-            using (var context = new Models.tasktDatabaseContext())
+            using (var context = new tasktDbContext())
             {
                 var workers = context.Workers.ToList();
 
@@ -77,9 +78,9 @@ namespace tasktServer.Controllers
         [HttpGet("/api/Workers/Top")]
         public IActionResult GetTopWorkers()
         {
-            using (var context = new Models.tasktDatabaseContext())
+            using (var context = new tasktDbContext())
             {
-                var topWorkerList = new List<Shared.TopWorker>();
+                var topWorkerList = new List<TopWorker>();
 
                 var groupedWorker = context.Tasks.ToList().Where(f => f.TaskStarted >= DateTime.Now.AddDays(-1)).GroupBy(f => f.WorkerID).OrderByDescending(f => f.Count());
 
@@ -96,7 +97,7 @@ namespace tasktServer.Controllers
                     }
 
 
-                    topWorkerList.Add(new Shared.TopWorker
+                    topWorkerList.Add(new TopWorker
                     {
                         WorkerID = wrkr.Key,
                         UserName = userName,
@@ -116,13 +117,13 @@ namespace tasktServer.Controllers
         [HttpGet("/api/Workers/New")]
         public IActionResult AddNewWorker(string userName, string machineName)
         {
-            using (var context = new Models.tasktDatabaseContext())
+            using (var context = new tasktDbContext())
             {
-                var newWorker = new Models.Worker();
+                var newWorker = new Worker();
                 newWorker.UserName = userName;
                 newWorker.MachineName = machineName;
                 newWorker.LastCheckIn = DateTime.Now;
-                newWorker.Status = Models.WorkerStatus.Pending;
+                newWorker.Status = WorkerStatus.Pending;
                 context.Workers.Add(newWorker);
                 context.SaveChanges();
                 return Ok(newWorker);
@@ -133,7 +134,7 @@ namespace tasktServer.Controllers
         [HttpGet("/api/Workers/CheckIn")]
         public IActionResult CheckInWorker(Guid workerID, bool engineBusy)
         {
-            using (var context = new Models.tasktDatabaseContext())
+            using (var context = new tasktDbContext())
             {
                 var targetWorker = context.Workers.Where(f => f.WorkerID == workerID).FirstOrDefault();
 
@@ -144,9 +145,9 @@ namespace tasktServer.Controllers
                 else
                 {
                     targetWorker.LastCheckIn = DateTime.Now;
-                    Models.Task scheduledTask = null;
-                    Models.PublishedScript publishedScript = null;
-
+                    Task scheduledTask = null;
+                    PublishedScript publishedScript = null;
+                  
 
                     if (!engineBusy)
                     {
@@ -213,7 +214,7 @@ namespace tasktServer.Controllers
                     context.SaveChanges();
 
 
-                    return Ok(new Models.CheckInResponse
+                    return Ok(new CheckInResponse
                     {
                         Worker = targetWorker,
                         ScheduledTask = scheduledTask,
@@ -235,7 +236,7 @@ namespace tasktServer.Controllers
         //[HttpGet("/api/Workers/Pending")]
         //public IActionResult GetPendingWorkers()
         //{
-        //    using (var context = new Models.tasktDatabaseContext())
+        //    using (var context = new tasktDbContext())
         //    {
         //        //Todo: Change to workers table
         //        var workers = context.Workers.Where(f => f.Status == Models.WorkerStatus.Pending).Count();
@@ -248,7 +249,7 @@ namespace tasktServer.Controllers
         //[HttpGet("/api/Workers/Revoked")]
         //public IActionResult GetRevokedWorkers()
         //{
-        //    using (var context = new Models.tasktDatabaseContext())
+        //    using (var context = new tasktDbContext())
         //    {
         //        //Todo: Change to workers table
         //        var workers = context.Workers.Where(f => f.Status == Models.WorkerStatus.Revoked).Count();
@@ -267,7 +268,7 @@ namespace tasktServer.Controllers
                 startDate = DateTime.Today;
             }
 
-            using (var context = new Models.tasktDatabaseContext())
+            using (var context = new tasktDbContext())
             {
                 var completedTasks = context.Tasks.Where(f => f.Status == "Completed").Where(f => f.TaskStarted >= startDate).Count();
                 return Ok(completedTasks + " completed");
@@ -282,7 +283,7 @@ namespace tasktServer.Controllers
                 startDate = DateTime.Today;
             }
 
-            using (var context = new Models.tasktDatabaseContext())
+            using (var context = new tasktDbContext())
             {
                 var completedTasks = context.Tasks.Where(f => f.Status == "Closed").Where(f => f.TaskStarted >= startDate).Count();
                 return Ok(completedTasks + " closed");
@@ -297,7 +298,7 @@ namespace tasktServer.Controllers
                 startDate = DateTime.Today;
             }
 
-            using (var context = new Models.tasktDatabaseContext())
+            using (var context = new tasktDbContext())
             {
                 var erroredTasks = context.Tasks.Where(f => f.Status == "Error").Where(f => f.TaskStarted >= startDate).Count();
                 return Ok(erroredTasks + " errored");
@@ -312,7 +313,7 @@ namespace tasktServer.Controllers
                 startDate = DateTime.Today;
             }
 
-            using (var context = new Models.tasktDatabaseContext())
+            using (var context = new tasktDbContext())
             {
                 var runningTasks = context.Tasks.Where(f => f.Status == "Running").Where(f => f.TaskStarted >= startDate).Count();
                 return Ok(runningTasks + " running");
@@ -328,7 +329,7 @@ namespace tasktServer.Controllers
         [HttpGet("/api/Tasks/All")]
         public IActionResult GetAllTasks()
         {
-            using (var context = new Models.tasktDatabaseContext())
+            using (var context = new tasktDbContext())
             {
                 var runningTasks = context.Tasks.ToList().OrderByDescending(f => f.TaskStarted).Take(5);
                 return Ok(runningTasks);
@@ -343,7 +344,7 @@ namespace tasktServer.Controllers
             //Todo: Add Auth Check, Change to HTTPPost and validate workerID is valid
 
 
-            using (var context = new Models.tasktDatabaseContext())
+            using (var context = new tasktDbContext())
             {
                 //var workerExists = context.Workers.Where(f => f.WorkerID == workerID).Count() > 0;
 
@@ -360,7 +361,7 @@ namespace tasktServer.Controllers
                     task.Status = "Closed";
                 }
 
-                var newTask = new Models.Task();
+                var newTask = new Task();
                 newTask.WorkerID = workerID;
                 newTask.UserName = userName;
                 newTask.MachineName = machineName;
@@ -379,7 +380,7 @@ namespace tasktServer.Controllers
         public IActionResult UpdateTask(Guid taskID, string status, Guid workerID, string userName, string machineName, string remark)
         {
             //Todo: Needs Testing
-            using (var context = new Models.tasktDatabaseContext())
+            using (var context = new tasktDbContext())
             {
                 var taskToUpdate = context.Tasks.Where(f => f.TaskID == taskID).FirstOrDefault();
 
@@ -409,7 +410,7 @@ namespace tasktServer.Controllers
             }
 
 
-            using (var context = new Models.tasktDatabaseContext())
+            using (var context = new tasktDbContext())
             {
                 var publishedScript = context.PublishedScripts.Where(f => f.PublishedScriptID == request.publishedScriptID).FirstOrDefault();
 
@@ -439,7 +440,7 @@ namespace tasktServer.Controllers
 
 
                 //create new task
-                var newTask = new Models.Task();
+                var newTask = new Task();
                 newTask.WorkerID = request.workerID;
                 newTask.TaskStarted = DateTime.Now;
                 newTask.Status = "Scheduled";
@@ -460,7 +461,7 @@ namespace tasktServer.Controllers
         [HttpGet("/api/Scripts/All")]
         public IActionResult GetAllPublishedScripts()
         {
-            using (var context = new Models.tasktDatabaseContext())
+            using (var context = new tasktDbContext())
             {
                 //var publishedScripts = context.PublishedScripts.ToList().OrderBy(f => f.WorkerID);
                 //var workers = context.Workers.Include(d => context.Workers.Where(f => f.WorkerID == d.WorkerID));
@@ -497,7 +498,7 @@ namespace tasktServer.Controllers
         [HttpPost("/api/Scripts/Publish")]
         public IActionResult PublishScript([FromBody] PublishedScript script)
         {
-            using (var context = new Models.tasktDatabaseContext())
+            using (var context = new tasktDbContext())
             {
                 if (script.OverwriteExisting)
                 {
@@ -524,7 +525,7 @@ namespace tasktServer.Controllers
         [HttpGet("/api/Scripts/Exists")]
         public IActionResult ScriptExistsCheck([FromQuery]Guid workerID, string friendlyName)
         {
-            using (var context = new Models.tasktDatabaseContext())
+            using (var context = new tasktDbContext())
             {
                var exists = context.PublishedScripts.Where(f => f.WorkerID == workerID && f.FriendlyName == friendlyName).Any();
                return Ok(exists);
@@ -536,7 +537,7 @@ namespace tasktServer.Controllers
         [HttpGet("/api/Assignments/All")]
         public IActionResult GetAllAssignments()
         {
-            using (var context = new Models.tasktDatabaseContext())
+            using (var context = new tasktDbContext())
             {
                 var assignments = context.Assignments.ToList().OrderByDescending(f => f.NewTaskDue);
                 return Ok(assignments);
@@ -547,7 +548,7 @@ namespace tasktServer.Controllers
         [HttpPost("/api/Assignments/Add")]
         public IActionResult AddAssignment([FromBody] Assignment assignment)
         {
-            using (var context = new Models.tasktDatabaseContext())
+            using (var context = new tasktDbContext())
             {
                 context.Assignments.Add(assignment);
                 context.SaveChanges();
@@ -562,7 +563,7 @@ namespace tasktServer.Controllers
         public IActionResult AddDataToBotStore([FromBody] BotStoreModel storeData)
         {
 
-            using (var context = new Models.tasktDatabaseContext())
+            using (var context = new tasktDbContext())
             {
 
                 if (!context.Workers.Any(f => f.WorkerID == storeData.LastUpdatedBy))
@@ -595,7 +596,7 @@ namespace tasktServer.Controllers
         public IActionResult GetDataBotStore([FromBody] BotStoreRequest requestData)
         {
 
-            using (var context = new Models.tasktDatabaseContext())
+            using (var context = new tasktDbContext())
             {
 
                 if (!context.Workers.Any(f => f.WorkerID == requestData.workerID))

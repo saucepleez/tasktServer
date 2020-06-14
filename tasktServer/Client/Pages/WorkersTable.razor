@@ -1,5 +1,8 @@
-﻿@inject HttpClient Http
+﻿@using tasktServer.Shared.Database.DbModels
+@using System.Threading.Tasks 
+@inject HttpClient Http
 @inject IJSRuntime jsRuntime
+
 
 @if (isLoading)
 {
@@ -44,18 +47,18 @@ else
 
 
 @code {
-    List<tasktServer.Shared.Worker> workers { get; set; } = new List<tasktServer.Shared.Worker>();
+    List<Worker> workers { get; set; } = new List<Worker>();
     bool isLoading = true;
-    protected override async Task OnInitializedAsync()
+    protected override async System.Threading.Tasks.Task OnInitializedAsync()
     {
-        workers = await Http.GetFromJsonAsync<List<tasktServer.Shared.Worker>>("/api/Workers/All");
+        workers = await Http.GetFromJsonAsync<List<Worker>>("/api/Workers/All");
         isLoading = false;
 
         System.Timers.Timer t = new System.Timers.Timer();
         t.Elapsed += async (s, e) =>
         {
             await jsRuntime.InvokeAsync<string>("console.log", $"Refreshing Worker List");
-            workers = await Http.GetFromJsonAsync<List<tasktServer.Shared.Worker>>("/api/Workers/All");
+            workers = await Http.GetFromJsonAsync<List<Worker>>("/api/Workers/All");
             await InvokeAsync(StateHasChanged);
         };
 

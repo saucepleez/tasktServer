@@ -9,3 +9,4 @@
 /tasktServer/Shared/bin/Debug/netstandard2.1
 /tasktServer/Shared/obj
 /.vs/tasktServer
+/tasktServer.Database/obj

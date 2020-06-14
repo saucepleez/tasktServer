@@ -5,7 +5,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using tasktServer.Models;
+using tasktServer.Shared.Database.DbModels;
+using tasktServer.Shared.Database;
 
 namespace tasktServer.Services
 {
@@ -34,7 +35,7 @@ namespace tasktServer.Services
 
         private void DoWork(object state)
         {
-            tasktDatabaseContext dbContext = new tasktDatabaseContext();
+            tasktDbContext dbContext = new tasktDbContext();
            var assignments = dbContext.Assignments.Where(f => f.Enabled);
 
             //look through each assignment to see if anything is required to be executed
@@ -44,7 +45,7 @@ namespace tasktServer.Services
                 {
 
                     //create task
-                    var newTask = new Models.Task();
+                    var newTask = new Shared.Database.DbModels.Task();
                     newTask.WorkerID = assn.AssignedWorker;
                     newTask.TaskStarted = DateTime.Now;
                     newTask.Status = "Scheduled";

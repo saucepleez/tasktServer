@@ -1,5 +1,6 @@
 ﻿@inject HttpClient Http
 @inject IJSRuntime jsRuntime
+@using tasktServer.Shared.Models
 
 @if (isLoading)
 {
@@ -48,18 +49,18 @@ else
 
 
 @code {
-    List<tasktServer.Shared.TopWorker> topWorkers { get; set; } = new List<tasktServer.Shared.TopWorker>();
+    List<TopWorker> topWorkers { get; set; } = new List<TopWorker>();
     bool isLoading = true;
     protected override async Task OnInitializedAsync()
     {
-        topWorkers = await Http.GetFromJsonAsync<List<tasktServer.Shared.TopWorker>>("/api/Workers/Top");
+        topWorkers = await Http.GetFromJsonAsync<List<TopWorker>>("/api/Workers/Top");
         isLoading = false;
 
         System.Timers.Timer t = new System.Timers.Timer();
         t.Elapsed += async (s, e) =>
         {
             await jsRuntime.InvokeAsync<string>("console.log", $"Refreshing Top Worker List");
-            topWorkers = await Http.GetFromJsonAsync<List<tasktServer.Shared.TopWorker>>("/api/Workers/Top");
+            topWorkers = await Http.GetFromJsonAsync<List<TopWorker>>("/api/Workers/Top");
             await InvokeAsync(StateHasChanged);
         };
 

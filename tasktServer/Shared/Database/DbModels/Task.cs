@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace tasktServer.Models
+namespace tasktServer.Shared.Database.DbModels
 {
     public class Task
     {
