@@ -38,7 +38,7 @@
         t.Elapsed += async (s, e) =>
         {
             Result = await Http.GetFromJsonAsync<string>($"{API}?startDate={StartDate.ToString("MM/dd/yyyy")}");
-            await jsRuntime.InvokeAsync<string>("console.log", $"{API}?startDate={StartDate.ToString("MM/dd/yyyy")}");
+            await jsRuntime.InvokeAsync<string>("console.log", $"Refreshing '{MetricName}' Card");
             await InvokeAsync(StateHasChanged);
         };
 

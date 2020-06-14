@@ -1,5 +1,5 @@
 ﻿@inject HttpClient Http
-
+@inject IJSRuntime jsRuntime
 
 @if (isLoading)
 {
@@ -54,5 +54,17 @@ else
     {
         taskList = await Http.GetFromJsonAsync<List<tasktServer.Shared.Task>>("/api/Tasks/All");
         isLoading = false;
+
+        System.Timers.Timer t = new System.Timers.Timer();
+        t.Elapsed += async (s, e) =>
+        {
+            await jsRuntime.InvokeAsync<string>("console.log", $"Refreshing Task List");
+            taskList = await Http.GetFromJsonAsync<List<tasktServer.Shared.Task>>("/api/Tasks/All");
+            await InvokeAsync(StateHasChanged);
+        };
+
+        t.Interval = 5000;
+        t.Start();
+
     }
 }
