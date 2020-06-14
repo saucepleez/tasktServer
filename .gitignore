@@ -10,3 +10,5 @@
 /tasktServer/Shared/obj
 /.vs/tasktServer
 /tasktServer.Database/obj
+/Database/bin/Debug/netcoreapp3.1
+/Database/obj
