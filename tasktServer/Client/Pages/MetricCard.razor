@@ -1,10 +1,14 @@
 ﻿@inject HttpClient Http
 @inject IJSRuntime jsRuntime
 
-<div class="card" style="width: 18rem; float:left; margin: 10px 10px 10px 10px;">
+<div class="card" style="        width: 18rem;
+        float: left;
+        margin: 10px 10px 10px 10px;
+        background-color: #052767;
+        color: white;">
     <div class="card-body">
         <h5 class="card-title">@MetricName</h5>
-        <h6 class="card-subtitle mb-2 text-muted">@Result</h6>
+        <h6 class="card-subtitle" style="color:whitesmoke;">@Result</h6>
         <p class="card-text">@Description</p>
     </div>
 </div>

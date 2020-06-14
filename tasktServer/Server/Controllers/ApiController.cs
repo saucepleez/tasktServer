@@ -79,9 +79,9 @@ namespace tasktServer.Controllers
         {
             using (var context = new Models.tasktDatabaseContext())
             {
-                var topWorkerList = new List<Models.TopWorker>();
+                var topWorkerList = new List<Shared.TopWorker>();
 
-                var groupedWorker = context.Tasks.Where(f => f.TaskStarted >= DateTime.Now.AddDays(-1)).GroupBy(f => f.WorkerID).OrderByDescending(f => f.Count());
+                var groupedWorker = context.Tasks.ToList().Where(f => f.TaskStarted >= DateTime.Now.AddDays(-1)).GroupBy(f => f.WorkerID).OrderByDescending(f => f.Count());
 
                 foreach (var wrkr in groupedWorker)
                 {
@@ -96,7 +96,7 @@ namespace tasktServer.Controllers
                     }
 
 
-                    topWorkerList.Add(new Models.TopWorker
+                    topWorkerList.Add(new Shared.TopWorker
                     {
                         WorkerID = wrkr.Key,
                         UserName = userName,
@@ -107,8 +107,6 @@ namespace tasktServer.Controllers
                         ErrorTasks = wrkr.Where(f => f.Status == "Error").Count()
                     });
                 }
-
-
 
                 return Ok(topWorkerList);
             }

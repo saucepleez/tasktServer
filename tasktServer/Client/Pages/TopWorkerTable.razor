@@ -1,0 +1,59 @@
+﻿@using tasktServer.Shared
+@inject HttpClient Http
+
+
+@if (isLoading)
+{
+    <b>Loading, Please Wait...</b>
+}
+else if (!isLoading && topWorkers.Count == 0)
+{
+    <div class="jumbotron jumbotron-fluid">
+        <div class="container">
+            <h1 class="display-4">Nothing to see here...</h1>
+            <p class="lead">We were unable to locate any workers for the given date.</p>
+        </div>
+    </div>
+}
+else
+{
+    <table class="table table-sm table-bordered">
+        <thead class="thead-dark">
+            <tr>
+                <th scope="col">Worker ID</th>
+                <th scope="col">Name</th>
+                <th scope="col">Total Tasks</th>
+                <th scope="col">Running Tasks</th>
+                <th scope="col">Completed Tasks</th>
+                <th scope="col">Error Tasks</th>
+                <th scope="col">Closed Tasks</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var wrkr in topWorkers)
+            {
+
+                <tr>
+                    <th scope="row">@wrkr.WorkerID</th>
+                    <td>@wrkr.UserName</td>
+                    <td>@wrkr.TotalTasks</td>
+                    <td>@wrkr.RunningTasks</td>
+                    <td>@wrkr.CompletedTasks</td>
+                    <td>@wrkr.ErrorTasks</td>
+                    <td>@wrkr.ClosedTasks</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+
+@code {
+    List<tasktServer.Shared.TopWorker> topWorkers { get; set; } = new List<TopWorker>();
+    bool isLoading = true;
+    protected override async Task OnInitializedAsync()
+    {
+        topWorkers = await Http.GetFromJsonAsync<List<tasktServer.Shared.TopWorker>>("/api/Workers/Top");
+        isLoading = false;
+    }
+}
