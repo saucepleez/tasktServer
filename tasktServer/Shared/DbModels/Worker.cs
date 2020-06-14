@@ -20,7 +20,8 @@ namespace tasktServer.Shared.DbModels
     {
         Pending = 0,
         Authorized = 1,
-        Revoked = 2
+        Revoked = 2,
+        AutoPending = 3
     }
 
 

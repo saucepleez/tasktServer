@@ -346,13 +346,26 @@ namespace tasktServer.Controllers
 
             using (var context = new tasktDbContext())
             {
-                //var workerExists = context.Workers.Where(f => f.WorkerID == workerID).Count() > 0;
+                var workerExists = context.Workers.Where(f => f.WorkerID == workerID).Count() > 0;
 
-                //if (!workerExists)
-                //{
-                //    //Todo: Create Alert
-                //    return Unauthorized();
-                //}
+                if (!workerExists)
+                {
+
+                    //create new worker
+                    var newWorker = new Worker();
+                    newWorker.WorkerID = workerID;
+                    newWorker.UserName = userName;
+                    newWorker.MachineName = machineName;
+                    newWorker.LastCheckIn = DateTime.Now;
+                    newWorker.Status = WorkerStatus.AutoPending;
+                    context.Workers.Add(newWorker);
+                    context.SaveChanges();
+
+                    //return Unauthorized();
+                }
+
+
+
 
                 //close out any stale tasks
                 var staleTasks = context.Tasks.Where(f => f.WorkerID == workerID && f.Status == "Running");
